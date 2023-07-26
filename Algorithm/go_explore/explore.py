@@ -12,13 +12,13 @@ cross = "----------------------------------"
 
 def traj_cost_calculate(traj, simulator):
     simulator.reset()
-    cumulative_rewards = np.zeros(2)
+    sum_rewards = np.zeros(2)
     # print(f"cumulative_rewards:{cumulative_rewards}")
     for pos in traj:
         reward = simulator.calculate_reward(pos)
-        cumulative_rewards += reward
+        sum_rewards += reward
 
-    return cumulative_rewards
+    return sum_rewards
 
 
 def calc_sample_prob(archive):
@@ -76,8 +76,8 @@ if __name__ == '__main__':
                 trajectory.append(cell_key)
                 cumulative_rewards = traj_cost_calculate(trajectory[1:], simulator_)
                 scalar_reward = np.dot(cumulative_rewards, np.array(pref))
-                cell_info = CellInfo(cell_traj=trajectory[:], num_of_visit=1, score=scalar_reward,
-                                     reward_vec=cumulative_rewards, terminal=terminal)
+                cell_info = CellInfo(cell_traj=trajectory[:], num_of_visit=1, score=float(scalar_reward),
+                                     reward_vec=list(cumulative_rewards), terminal=terminal)
                 deterministic_archive.update_cell(utility_key=pref, cell_key=cell_key, cell_info=cell_info)
 
         for cell in deterministic_archive.archive[pref].keys():
@@ -94,5 +94,5 @@ if __name__ == '__main__':
         print(
             f"pref:{pref}\tcell:{list(deterministic_archive.archive[pref].keys())[max_index]}\treward:{scalar_reward_list[max_index]}\n{cross}")
 
-    np.save("C:/Users/19233436/PycharmProjects/MOGOExplore/simulation/deep_sea_treasure/archive/archive.npy",
+    np.save("D:/PhD/Project/MOGE/Algorithm/go_explore/archives/grid_world/archive.npy",
             deterministic_archive.archive)
