@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
     for pref, rews in pref_traj_rews.items():  # treasure, step
         preference_list.append(np.array(pref))
-        rew_vec_list.append(np.array([rews[0], rews[1]])/25)
+        rew_vec_list.append(np.array([rews[0], rews[1]]))
         print(f"pref:{pref}|rews:{rews}")
 
     # 将列表转换为 TensorFlow 数据集
