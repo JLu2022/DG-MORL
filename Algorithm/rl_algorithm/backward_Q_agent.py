@@ -49,7 +49,7 @@ class Tabular_Q_Agent:
             print(f"sub_demo:{sub_demo}, reward bar:{rew_threshold}, pref:{pref_w}, reset_to:{demo[reset_idx]}")
             step = 0
 
-            while evaluation_rew < rew_threshold and step < 100:  # while the agent does not learn a policy not worse than the demo
+            while evaluation_rew < rew_threshold: #and step < 100:  # while the agent does not learn a policy not worse than the demo
                 step += 1
 
                 image, state = self.env.reset_to_state(reset_to=demo[reset_idx])  # reset to the start point
@@ -92,10 +92,10 @@ class Tabular_Q_Agent:
                 rews_threshold += self.env.calculate_reward(player_pos=demo_s)
             evaluation_rew = -np.inf
             rew_threshold = round(np.dot(rews_threshold, pref_w), 2)
-            print(f"sub_demo:{sub_demo}, reward bar:{rew_threshold}, pref:{pref_w}, reset_to:{demo[reset_idx]}")
+            # print(f"sub_demo:{sub_demo}, reward bar:{rew_threshold}, pref:{pref_w}, reset_to:{demo[reset_idx]}")
             step = 0
 
-            while evaluation_rew < rew_threshold:  # and step < 50:  # while the agent does not learn a policy not worse than the demo
+            while evaluation_rew < rew_threshold and step < 5000:  # while the agent does not learn a policy not worse than the demo
                 step += 1
 
                 image, state = self.env.reset_to_state(reset_to=demo[reset_idx])  # reset to the start point
@@ -114,9 +114,9 @@ class Tabular_Q_Agent:
                     state = n_state
 
                 evaluation_rew, state_list = self.play_sub_episode(reset_to=demo[reset_idx], pref=pref_w)
-                if step % 50 == 0:
-                    print(f"evaluation_rew:{evaluation_rew}\tstate_list:{state_list}")
-            print(f"evaluation_rew:{evaluation_rew}\tstate_list:{state_list}")
+                # if step % 50 == 0:
+                    # print(f"evaluation_rew:{evaluation_rew}\tstate_list:{state_list}")
+            # print(f"evaluation_rew:{evaluation_rew}\tstate_list:{state_list}")
         return steps, reward_list, expected_utility_list
 
     def play_sub_episode(self, reset_to, pref):
@@ -138,17 +138,18 @@ class Tabular_Q_Agent:
 
     def play_a_episode(self, pref, agent):
         env_try = DeepSeaTreasure()
-        episode_reward = 0
+        episode_rewards = np.zeros(2)
         terminal = False
         image, state = env_try.reset()
         while not terminal:
             action = agent.epsilon_greedy(state, epsilon=0)
             rewards, n_image, terminal, n_state, shaping_reward, treasure_reward = env_try.step(action)
 
-            episode_reward += np.dot(rewards, pref)
+            episode_rewards += rewards
             state = n_state
+        episode_reward = float(np.dot(episode_rewards, pref))
         print(f"Play episode, to goal:{pref} \t get episodic reward:{episode_reward} @ {state}")
-        return round(episode_reward, 2)
+        return round(episode_reward, 2), episode_rewards
 
     def select_agent_from_pref(self, agent_list, w):
         thresholds = [0.51, 0.34, 0.21, 0.17, 0.15, 0.12, 0.1, 0.08, 0.06, 0]

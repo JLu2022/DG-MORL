@@ -58,7 +58,7 @@ if __name__ == '__main__':
     for pref in pref_list[1:]:
         pref = tuple(pref)
         print(f"Exploration of pref:{pref} starts ---------------------->> ")
-        for sample_epi in range(2001):
+        for sample_epi in range(3001):
             prob = calc_sample_prob(deterministic_archive.archive[pref])
             cell_key = random.choices(list(deterministic_archive.archive[pref].keys()), prob, k=1)[0]
             if simulator.calculate_reward(cell_key)[1] >= 0.7:
@@ -94,5 +94,4 @@ if __name__ == '__main__':
         print(
             f"pref:{pref}\tcell:{list(deterministic_archive.archive[pref].keys())[max_index]}\treward:{scalar_reward_list[max_index]}\n{cross}")
 
-    np.save("D:/PhD/Project/MOGE/Algorithm/go_explore/archives/grid_world/archive.npy",
-            deterministic_archive.archive)
+    np.save("archives/archive.npy",deterministic_archive.archive)

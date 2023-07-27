@@ -74,7 +74,7 @@ class DeepSeaTreasure(AbstractSimulator):
         self.visualization = visualization
         self.preference_token = "No pref"
         self.image_path = "DST/" + str(self.preference_token) + "/"
-        self.energy = 500
+        self.energy = 600
 
     def render_map(self, img_map):
         image = np.zeros(self.observation_space_img)
@@ -118,7 +118,7 @@ class DeepSeaTreasure(AbstractSimulator):
             self.add_submarine()
         image = self.render_map(self.img_map)
         image /= 255
-        self.energy = 500
+        self.energy = 600
         position = (self.row, self.col)
         return image, position
 
@@ -130,7 +130,7 @@ class DeepSeaTreasure(AbstractSimulator):
             self.add_submarine()
         image = self.render_map(self.img_map)
         image /= 255
-        self.energy = 500
+        self.energy = 600
         position = (self.row, self.col)
         # preference = (reset_to[2], reset_to[3])
         return image, position

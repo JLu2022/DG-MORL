@@ -8,7 +8,7 @@ from Algorithm.rl_algorithm.backward_Q_agent import Tabular_Q_Agent
 from simulators.deep_sea_treasure.preference_space import PreferenceSpace
 from Algorithm.go_explore.explore import traj_cost_calculate
 
-archive = np.load("C:/Users/19233436/PycharmProjects/MOGOExplore/simulation/deep_sea_treasure/archive/archive.npy",
+archive = np.load("archives/archive.npy",
                   allow_pickle=True).item()
 simulator = DeepSeaTreasure(img_repr=True)
 cross = "---------------Policy starts-------------------"
@@ -37,6 +37,8 @@ pref_list = np.array(
         , [0.75, 0.25], [0.82, 0.18], [0.84, 0.16], [0.87, 0.13], [0.89, 0.11], [0.91, 0.09],
      [0.93, 0.07], [0.99, 0.01]]
 )
+pref_list = np.load("../../policy_distinguish/corner_weights.npy")
+
 # print(pref_traj_score)
 # pref_list = np.array(pref_list[::-1])
 agent_list = []
