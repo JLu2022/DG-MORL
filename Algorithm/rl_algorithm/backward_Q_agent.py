@@ -78,13 +78,16 @@ class Tabular_Q_Agent:
         reward_list = []
         expected_utility_list = []
         # divide the demo into 4 part:
-        num_of_parts = len(demo) // 4
+        # num_of_parts = len(demo) // 5
+        num_of_parts = len(demo)
         init_s = demo[0]
         reset_to_ss = []
         reset_to_ss.append(init_s)
 
-        for i in range(num_of_parts + 1)[::-1]:
-            reset_idx = i * 3
+        # for i in range(num_of_parts + 1)[::-1]:
+        for i in range(num_of_parts)[::-1]:
+            # reset_idx = i * 4
+            reset_idx = i
             # reset_to_ss.append(demo[reset_idx*4])
             sub_demo = demo[reset_idx + 1:]
             rews_threshold = np.zeros(2)

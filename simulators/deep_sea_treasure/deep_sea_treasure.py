@@ -11,16 +11,16 @@ class DeepSeaTreasure(AbstractSimulator):
     def __init__(self, visualization=False, submarine_pos=None, num_of_row=11, num_of_col=11, img_repr=False):
         # CCDST
         row_1 = (-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0)
-        row_2 = (0.7, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0)
-        row_3 = (0, 8.2, -1, -1, -1, -1, -1, -1, -1, -1, 0)
-        row_4 = (0, 0, 11.5, -1, -1, -1, -1, -1, -1, -1, 0)
-        row_5 = (0, 0, 0, 14.0, 15.1, 16.1, -1, -1, -1, -1, 0)
+        row_2 = (1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0)
+        row_3 = (0, 34, -1, -1, -1, -1, -1, -1, -1, -1, 0)
+        row_4 = (0, 0, 58, -1, -1, -1, -1, -1, -1, -1, 0)
+        row_5 = (0, 0, 0, 78, 86, 92, -1, -1, -1, -1, 0)
         row_6 = (0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0)
         row_7 = (0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0)
-        row_8 = (0, 0, 0, 0, 0, 0, 19.6, 20.3, -1, -1, 0)
+        row_8 = (0, 0, 0, 0, 0, 0, 112, 116, -1, -1, 0)
         row_9 = (0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0)
-        row_10 = (0, 0, 0, 0, 0, 0, 0, 0, 22.4, -1, 0)
-        row_11 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 23.7, 0)
+        row_10 = (0, 0, 0, 0, 0, 0, 0, 0, 122, -1, 0)
+        row_11 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 124, 0)
         # row_1 = (-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
         # row_2 = (0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
         # row_3 = (0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1)
@@ -74,7 +74,7 @@ class DeepSeaTreasure(AbstractSimulator):
         self.visualization = visualization
         self.preference_token = "No pref"
         self.image_path = "DST/" + str(self.preference_token) + "/"
-        self.energy = 600
+        self.energy = 100
 
     def render_map(self, img_map):
         image = np.zeros(self.observation_space_img)
@@ -118,7 +118,7 @@ class DeepSeaTreasure(AbstractSimulator):
             self.add_submarine()
         image = self.render_map(self.img_map)
         image /= 255
-        self.energy = 600
+        self.energy = 100
         position = (self.row, self.col)
         return image, position
 
@@ -130,7 +130,7 @@ class DeepSeaTreasure(AbstractSimulator):
             self.add_submarine()
         image = self.render_map(self.img_map)
         image /= 255
-        self.energy = 600
+        self.energy = 100
         position = (self.row, self.col)
         # preference = (reset_to[2], reset_to[3])
         return image, position

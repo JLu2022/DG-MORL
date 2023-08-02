@@ -58,7 +58,7 @@ if __name__ == '__main__':
     for pref in pref_list[1:]:
         pref = tuple(pref)
         print(f"Exploration of pref:{pref} starts ---------------------->> ")
-        for sample_epi in range(3001):
+        for sample_epi in range(1001):
             prob = calc_sample_prob(deterministic_archive.archive[pref])
             cell_key = random.choices(list(deterministic_archive.archive[pref].keys()), prob, k=1)[0]
             if simulator.calculate_reward(cell_key)[1] >= 0.7:

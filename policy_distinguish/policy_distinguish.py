@@ -14,8 +14,8 @@ from simulators.deep_sea_treasure.preference_space import PreferenceSpace
 from keras import layers
 from keras import backend as K
 from keras.losses import mse
-from sklearn.cluster import KMeans
-from sklearn.neighbors import LocalOutlierFactor
+# from sklearn.cluster import KMeans
+# from sklearn.neighbors import LocalOutlierFactor
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 # 设置 Python 的随机种子
 random.seed(121)
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     for pref, rews in pref_traj_rews.items():  # treasure, step
         preference_list.append(np.array(pref))
         rew_vec_list.append(np.array([rews[0], rews[1]]))
-        print(f"pref:{pref}|rews:{rews}")
+        print(f"pref:{pref}|rews:{rews}|utility:{np.dot(rews,pref)}")
 
     # 将列表转换为 TensorFlow 数据集
     dataset = tf.data.Dataset.from_tensor_slices((rew_vec_list))
@@ -91,8 +91,8 @@ if __name__ == '__main__':
         # augmented_item2 = []
         for _ in range(num_replicas):
             # 添加随机噪声，这里以高斯分布的噪声为例
-            # noise1 = np.random.randint(low=-5, high=2, size=item1.shape)
-            noise1 = np.random.normal(loc=-3, scale=0.5, size=item1.shape)
+            noise1 = np.random.randint(low=-1, high=1, size=item1.shape)
+            # noise1 = np.random.normal(loc=-3, scale=0.5, size=item1.shape)
             # noise1[0] = 0
             # noise1[1] = 0
 
@@ -159,7 +159,7 @@ if __name__ == '__main__':
               # f"\tavg:{np.mean(eval_losses)}"
               )
         if eval_loss > pass_loss:
-            if len(train_repitore) > 10*batch_size:
+            if len(train_repitore) > 5*batch_size:
                 train_repitore = np.array([])
             train_repitore = np.append(train_repitore, dataset_aug[i])
             train_repitore = train_repitore.reshape(-1, 2)
