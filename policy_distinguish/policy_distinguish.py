@@ -225,7 +225,7 @@ if __name__ == '__main__':
                 label='points found by explore')
 
     plt.scatter(robustified_rewards[:, 0], robustified_rewards[:, 1], color='r', marker='o',
-                label='points found by explore')
+                label='points found by robustification')
     plt.xlabel('time')
     plt.ylabel('treasure')
     plt.legend()
