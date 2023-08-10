@@ -25,100 +25,70 @@ input_dim = 2
 encoding_dim = 16
 hidden_dim = 8
 latent_dim = 8
-
-# 创建去噪自编码器模型
-input_data = Input(shape=(input_dim,))  # input_dim是输入数据的维度
-hidden_0 = Dense(encoding_dim, activation='relu')(input_data)
-hidden_1 = Dense(hidden_dim, activation='relu')(hidden_0)
-z = Dense(latent_dim)(hidden_1)
-hidden_2 = Dense(hidden_dim, activation='relu')(z)
-hidden_3 = Dense(hidden_dim, activation='relu')(hidden_2)
-output_data = Dense(input_dim)(hidden_3)
-
-autoencoder = Model(input_data, output_data)
-
-optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
-
+utility_list = []
+true_corner_weights = [[0.49, 0.51], [0.66, 0.34], [0.79, 0.21], [0.83, 0.17], [0.85, 0.15], [0.88, 0.12],
+                       [0.90, 0.10], [0.92, 0.08], [0.94, 0.06]]
+corner_reward_list = []
 cross = "---------------Policy starts-------------------"
-current_directory = os.getcwd()
-print(f"cur:{current_directory}")
 
 
-# 数据增强函数，为每个样本添加随机噪声
-def data_augmentation(item1):
-    num_replicas = 1
-    # 创建一个数组来保存所有的样本和噪声
-    augmented_item1 = []
-    # augmented_item2 = []
-    for _ in range(num_replicas):
-        # 添加随机噪声，这里以高斯分布的噪声为例
-        noise1 = np.random.randint(low=-2, high=1, size=item1.shape)
-        # noise1 = np.random.normal(loc=-3, scale=0.5, size=item1.shape)
-        noise1[0] = 0
-        noise1[1] = 0
-
-        # item1[0] += random.randint(-3,1)
-        # noise2 = np.random.normal(loc=0.0, scale=0.1, size=item2.shape)
-        augmented_item1.append(item1 + noise1)
-        # augmented_item2.append(item2 + noise2)
-
-    # 使用 tf.stack 将增强后的样本堆叠在一起，并保持原始维度
-    augmented_item1 = tf.stack(augmented_item1)
-    # augmented_item2 = tf.stack(augmented_item2)
-
-    # 返回增强后的数据
-    return augmented_item1
-
-
-def policy_distinguish(preference_list):
-    epochs = 100
-    batch_size = 32
+def policy_distinguish(autoencoder, preference_list, trajectory_set, epochs=100, batch_size=32):
     corner_weight_idx = []
     pass_loss = -np.inf
     eval_losses = [-np.inf]
-    train_repitore = np.array([])
+    train_repertoire = np.array([])
     corner_weights = []
-    for i in range(len(preference_list) - 1):
-        # print(f"data:{dataset[i]}")
-
-        predictions = autoencoder(dataset_aug[i])
-        eval_loss = tf.reduce_mean(mse(dataset_aug[i], predictions))
+    initial_weights = autoencoder.get_weights()
+    loss = 0
+    max_loss = 0
+    for i in range(len(preference_list)):
+        # print("trajectory_set[i]", trajectory_set[i])
+        print(f"[trajectory_set[i][0]]:{[trajectory_set[i][0]]}")
+        predictions = autoencoder(np.array([trajectory_set[i][0]]))
+        eval_loss = tf.reduce_mean(mse(np.array([trajectory_set[i][0]]), predictions))
         print(
             f"pref:{preference_list[i]}rews{rew_vec_list[i]}"
-            f"avg_rew:{np.mean(dataset_aug[i], axis=0)}\t "
+            # f"avg_rew:{np.mean(trajectory_set[i], axis=0)}\t "
+            f"reconstruct:{np.round(predictions, 2)}"
             f"eval loss:{eval_loss}\t"
-            f"train_repitore content{len(train_repitore)}"
+            f"train_repertoire content{len(train_repertoire)}"
         )
-        if eval_loss > pass_loss*1.07:  # adding some scaling loss for the eval loss,say 10% greater than pass loss.
-            if len(train_repitore) > 5 * batch_size:
-                train_repitore = np.array([])  # will remove some pieces.
-            train_repitore = np.append(train_repitore, dataset_aug[i])
-            train_repitore = train_repitore.reshape(-1, 2)
-            # print(f"avg:{np.mean(eval_losses)}")
+        if eval_loss > pass_loss:  # adding some scaling loss for the eval loss,say 10% greater than pass loss.
+            autoencoder.set_weights(initial_weights)
             eval_losses = []
             print("Meet new")
             corner_weight_idx.append(i)
             corner_weights.append(preference_list[i])
             for epoch in range(epochs + 1):
-                # dataset[i] = np.array(dataset[i])
-                np.random.shuffle(train_repitore)
-                # 开启 GradientTape，跟踪前向传播过程，计算梯度
-                for i in range(0, len(train_repitore), batch_size):
-                    with tf.GradientTape() as tape:
-                        predictions = autoencoder(train_repitore[i:i + batch_size])
-                        loss = tf.reduce_mean(mse(train_repitore[i:i + batch_size], predictions))
-                    gradients = tape.gradient(loss, autoencoder.trainable_variables)
-
-                    optimizer.apply_gradients(zip(gradients, autoencoder.trainable_variables))
+                with tf.GradientTape() as tape:
+                    predictions = autoencoder(trajectory_set[i])
+                    losses = mse(trajectory_set[i], predictions)
+                    loss = tf.reduce_mean(mse(trajectory_set[i], predictions))
+                    max_loss = tf.reduce_max(mse(trajectory_set[i], predictions))
+                gradients = tape.gradient(loss, autoencoder.trainable_variables)
+                optimizer.apply_gradients(zip(gradients, autoencoder.trainable_variables))
 
                 if epoch % 100 == 0:
-                    print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss:.4f}")
-        pass_loss = loss
+                    print(f"Epoch {epoch + 1}/{epochs}, max_loss: {max_loss}")
+        pass_loss = max_loss
         eval_losses.append(eval_loss)
     return corner_weights, corner_weight_idx
 
 
 if __name__ == '__main__':
+    # Auto-encoder model
+    input_data = Input(shape=(input_dim,))
+    hidden_0 = Dense(encoding_dim, activation='relu')(input_data)
+    hidden_1 = Dense(hidden_dim, activation='relu')(hidden_0)
+    z = Dense(latent_dim)(hidden_1)
+    hidden_2 = Dense(hidden_dim, activation='relu')(z)
+    hidden_3 = Dense(hidden_dim, activation='relu')(hidden_2)
+    output_data = Dense(input_dim)(hidden_3)
+
+    autoencoder = Model(input_data, output_data)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
+
+    # Load in the archive
     archive = np.load("../Algorithm/go_explore/archives/archive.npy", allow_pickle=True).item()
     archive = dict(archive)
     simulator = DeepSeaTreasure(img_repr=True)
@@ -134,13 +104,12 @@ if __name__ == '__main__':
         max_traj = None
         for k in archive[pref].keys():
             if archive[pref][k].score > max_score and archive[pref][k].terminal:
-                # print(f"pref:{pref}\treward:{archive[pref][k].reward_vec}\tscore:{archive[pref][k].score}")
                 max_rews = archive[pref][k].reward_vec
                 max_score = archive[pref][k].score
                 max_traj = archive[pref][k].cell_traj
-        if not pref == (0, 1):
-            pref_traj_score[pref] = (max_traj, max_score)
-            pref_traj_rews[pref] = tuple(max_rews)
+        # if not pref == (0, 1):
+        pref_traj_score[pref] = (max_traj, max_score)
+        pref_traj_rews[pref] = tuple(max_rews)
 
     preference_list = []
     rew_vec_list = []
@@ -149,60 +118,40 @@ if __name__ == '__main__':
         preference_list.append(np.array(pref))
         rew_vec_list.append(np.array([rews[0], rews[1]]))
         print(f"pref:{pref}|rews:{rews}|utility:{np.dot(rews, pref)}")
+    rew_vec_list = np.array(rew_vec_list)
+    rew_data = np.expand_dims(rew_vec_list, axis=0)
+    # print(f"reward_vec_list:{rew_data}")
 
-    # 将列表转换为 TensorFlow 数据集
-    dataset = tf.data.Dataset.from_tensor_slices(rew_vec_list)
-    pre_train_dataset = tf.data.Dataset.from_tensor_slices(([rew_vec_list], [rew_vec_list]))
-    # 对数据集进行数据增强
-    dataset_aug = dataset.map(data_augmentation)
-    dataset_aug = list(dataset_aug.as_numpy_iterator())
-    # print(f"len:{len(dataset)}")
-    # 打印前几个样本
-    # for item1 in dataset.take(5):
-    #     print("Item 1:", item1.numpy())
-    # epochs = 100
-    # batch_size = 32
-    # threshold = 0.1
-    # corner_weight_idx = []
-    # pass_loss = -np.inf
-    # eval_losses = [-np.inf]
-    # train_repitore = np.array([])
-    utility_list = []
-    true_corner_weights = [[0.49, 0.51], [0.66, 0.34], [0.79, 0.21], [0.83, 0.17], [0.85, 0.15], [0.88, 0.12],
-                           [0.90, 0.10], [0.92, 0.08], [0.94, 0.06]]
-    # corner_weights = []
-    corner_reward_list = []
-    # print(dataset)
-    # dataset = np.array(dataset)
-    # # 使用LOF算法进行异常检测
-    # lof = LocalOutlierFactor(n_neighbors=10, contamination=0.25)  # n_neighbors为邻居数，contamination为异常点比例
-    # y_pred = lof.fit_predict(dataset)
-    # scores = lof.negative_outlier_factor_
-    #
-    # # 绘制异常检测结果
-    # plt.scatter(dataset[:, 0], dataset[:, 1], color='b', marker='o', label='normal')
-    # plt.scatter(dataset[y_pred == -1][:, 0], dataset[y_pred == -1][:, 1], color='r', marker='o', label='abnormal')
-    #
-    # # 绘制异常点的LOF分数
-    # radius = (scores.max() - scores) / (scores.max() - scores.min())  # 归一化LOF分数
-    # plt.scatter(dataset[:, 0], dataset[:, 1], s=100 * radius, edgecolors='r', facecolors='none', label='LOF score')
-    #
-    # for i, label in enumerate(dataset):
-    #     plt.annotate(label, (dataset[i, 0], dataset[i, 1]), textcoords="offset points", xytext=(0, 5), ha='center')
-    #
-    # plt.xlabel('step penalty')
-    # plt.ylabel('treasure')
-    # plt.legend()
-    # plt.show()
-
-    # pre-train:
-    # for element in pre_train_dataset:
-    #     print(f"pre_train_data:{element}")
-
+    # Pre-train
+    pre_train_dataset = tf.data.Dataset.from_tensor_slices((rew_data, rew_data))
     autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
     autoencoder.fit(pre_train_dataset, epochs=1000)
+    rew_data = []
+    mask = np.array([0.002, 0.998])  # filter the traj
+    for rew in rew_vec_list:
+        rew = np.array(rew)
+        rews = []
+        for i in range(64):
+            if i > 0:
+                noise = np.random.randint(-2, 1, rew.shape)
+                # noise[1] = 0
+                rews.append((rew + noise) * mask)
+        # print(f"rews:{rews}")
+        rew_data.append(rews)
+    rew_data = np.array(rew_data)
+    # print(rew_data)
+    # for rew in rew_data:
+    #     print(f"rew:{rew}")
+    # rew_data = rew_data * mask
+    # rew_data = np.transpose(rew_data, (1, 0, 2))
+    # for rew in rew_data:
+    #     print(f"rew:{rew}")
+    # print(f"rew:{rew_data}")
+    # Distinguish policy from the trajs
+    corner_weights, corner_weight_idx = policy_distinguish(autoencoder, preference_list, trajectory_set=rew_data,
+                                                           epochs=100,
+                                                           batch_size=32)
 
-    corner_weights, corner_weight_idx = policy_distinguish(preference_list)
     print(f"corner:{corner_weights}")
     x_values = [point[0] for point in corner_weights]
     y_values = [point[1] for point in corner_weights]
@@ -210,14 +159,14 @@ if __name__ == '__main__':
     print(y_values)
     true_x_values = [point[0] for point in true_corner_weights]
     true_y_values = [point[1] for point in true_corner_weights]
-
+    print(rew_vec_list)
     for idx in corner_weight_idx:
         print(f"corner weights:{preference_list[idx]}\t"
-              f"rew:{list(dataset.as_numpy_iterator())[idx]}\t"
-              f"utility:{np.dot(preference_list[idx], np.array(list(dataset.as_numpy_iterator())[idx]))}")
+              f"rew:{list(rew_vec_list[idx])}\t")
 
-        utility_list.append(np.dot(preference_list[idx], np.array(list(dataset.as_numpy_iterator())[idx])))
-        corner_reward_list.append(list(dataset.as_numpy_iterator())[idx])
+        # utility_list.append(np.dot(preference_list[idx], np.array(list(dataset.as_numpy_iterator())[idx])))
+        corner_reward_list.append(list(rew_vec_list[idx]))
+
     print(f"corner_reward_list:{corner_reward_list}")
     corner_reward_list = np.array(corner_reward_list)
 

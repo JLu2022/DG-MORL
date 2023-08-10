@@ -55,10 +55,10 @@ if __name__ == '__main__':
         deterministic_archive.update_cell(utility_key=pref, cell_key=cell_key, cell_info=initial_cell_info)
     print(deterministic_archive.archive.items())
 
-    for pref in pref_list[1:]:
+    for pref in pref_list:
         pref = tuple(pref)
         print(f"Exploration of pref:{pref} starts ---------------------->> ")
-        for sample_epi in range(1201):
+        for sample_epi in range(2201):
             prob = calc_sample_prob(deterministic_archive.archive[pref])
             cell_key = random.choices(list(deterministic_archive.archive[pref].keys()), prob, k=1)[0]
             if simulator.calculate_reward(cell_key)[1] >= 0.7:
