@@ -49,7 +49,7 @@ class Tabular_Q_Agent:
             print(f"sub_demo:{sub_demo}, reward bar:{rew_threshold}, pref:{pref_w}, reset_to:{demo[reset_idx]}")
             step = 0
 
-            while evaluation_rew < rew_threshold: #and step < 100:  # while the agent does not learn a policy not worse than the demo
+            while evaluation_rew < rew_threshold:  # and step < 100:  # while the agent does not learn a policy not worse than the demo
                 step += 1
 
                 image, state = self.env.reset_to_state(reset_to=demo[reset_idx])  # reset to the start point
@@ -73,39 +73,26 @@ class Tabular_Q_Agent:
     def imitate_q_(self, num_of_step=50000, pref_w=None, demo=None, agent_list=None):
         epsilon = 0.5
         alpha = 0.1
-        gamma = 1
-        steps = 0
-        reward_list = []
-        expected_utility_list = []
-        # divide the demo into 4 part:
-        # num_of_parts = len(demo) // 5
+        gamma = 0.99
+        expected_rewards_list = []
         num_of_parts = len(demo)
-        init_s = demo[0]
-        reset_to_ss = []
-        reset_to_ss.append(init_s)
-
-        # for i in range(num_of_parts + 1)[::-1]:
+        train_cnt = 0
         for i in range(num_of_parts)[::-1]:
-            # reset_idx = i * 4
             reset_idx = i
-            # reset_to_ss.append(demo[reset_idx*4])
             sub_demo = demo[reset_idx + 1:]
             rews_threshold = np.zeros(2)
             for demo_s in sub_demo:
                 rews_threshold += self.env.calculate_reward(player_pos=demo_s)
             evaluation_rew = -np.inf
             rew_threshold = round(np.dot(rews_threshold, pref_w), 2)
-            # print(f"sub_demo:{sub_demo}, reward bar:{rew_threshold}, pref:{pref_w}, reset_to:{demo[reset_idx]}")
+
             step = 0
-
-            while evaluation_rew < rew_threshold and step < 5000:  # while the agent does not learn a policy not worse than the demo
+            while evaluation_rew < rew_threshold and step < 4000:  # while the agent does not learn a policy not worse than the demo
                 step += 1
-
                 image, state = self.env.reset_to_state(reset_to=demo[reset_idx])  # reset to the start point
                 terminal = False
-
+                # while not terminal and not train_cnt > 4000:
                 while not terminal:
-                    steps += 1
                     action = self.epsilon_greedy(state, epsilon)
                     rews, n_image, terminal, n_state, shaping_reward, t_r = self.env.step(action)
                     reward = np.dot(rews, pref_w)
@@ -116,11 +103,12 @@ class Tabular_Q_Agent:
                     self.Q_table[state[0]][state[1]][action] += alpha * TD_error
                     state = n_state
 
+                    train_cnt += 1
+                    if train_cnt % 10 == 0:
+                        episode_reward, episode_rewards = self.play_a_episode(pref=pref_w, agent=self)
+                        expected_rewards_list.append(episode_reward)
                 evaluation_rew, state_list = self.play_sub_episode(reset_to=demo[reset_idx], pref=pref_w)
-                # if step % 50 == 0:
-                    # print(f"evaluation_rew:{evaluation_rew}\tstate_list:{state_list}")
-            # print(f"evaluation_rew:{evaluation_rew}\tstate_list:{state_list}")
-        return steps, reward_list, expected_utility_list
+        return expected_rewards_list
 
     def play_sub_episode(self, reset_to, pref):
         episode_reward = 0
@@ -144,14 +132,17 @@ class Tabular_Q_Agent:
         episode_rewards = np.zeros(2)
         terminal = False
         image, state = env_try.reset()
+        cnt = 0
         while not terminal:
+
             action = agent.epsilon_greedy(state, epsilon=0)
             rewards, n_image, terminal, n_state, shaping_reward, treasure_reward = env_try.step(action)
 
-            episode_rewards += rewards
+            episode_rewards += rewards*(0.99**cnt)
+            cnt += 1
             state = n_state
         episode_reward = float(np.dot(episode_rewards, pref))
-        print(f"Play episode, to goal:{pref} \t get episodic reward:{episode_reward} @ {state}")
+        # print(f"Play episode, to goal:{pref} \t get episodic reward:{episode_reward} @ {state}")
         return round(episode_reward, 2), episode_rewards
 
     def select_agent_from_pref(self, agent_list, w):
