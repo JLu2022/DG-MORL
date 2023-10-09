@@ -299,6 +299,24 @@ class DeepSeaTreasure(AbstractSimulator):
         utility = np.dot(rewards, pref_w)
         return utility
 
+    def state_traj_to_actions(self, state_demo):
+        action_list = []
+        # print(state_demo)
+        for i in range(len(state_demo) - 1):
+            move = np.array(state_demo[i + 1]) - np.array(state_demo[i])
+            if move[0] == -1 and move[1] == 0:
+                action_list.append(0)
+            if move[0] == 1 and move[1] == 0:
+                action_list.append(1)
+            if move[0] == 0 and move[1] == -1:
+                action_list.append(2)
+            if move[0] == 0 and move[1] == 1:
+                action_list.append(3)
+            # print(np.array(state_demo[i + 1]) - np.array(state_demo[i]))
+        # print(action_list)
+        return action_list
+# 0:up 1:down 2:left 3:right
+
 
 if __name__ == '__main__':
     dst_env = DeepSeaTreasure(visualization=True)
@@ -327,7 +345,7 @@ if __name__ == '__main__':
     sum_utility = 0
     # pref_list = [1, 0.7, 0.67, 0.66, 0.58, 0.54, 0.51, 0.47, 0.39, 0.21]
     for i in range(101):
-    # for treasure_w in pref_list:
+        # for treasure_w in pref_list:
         treasure_w = round((100 - i) / 100, 2)
         utility_list = []
         for traj in trajs:
@@ -337,6 +355,7 @@ if __name__ == '__main__':
         idx = np.argmax(utility_list)
         print(f"pref:{[1 - treasure_w, treasure_w]}\tmax_utility:{max(utility_list)}\tpos:{10 - idx}")
     print(f"avg utility:{sum_utility / 101}")
+    dst_env.state_traj_to_actions(traj_to_4_5)
     # print(f"utility:{utility}")
     # print("-------------------------------")
     # # print(dst_env.show_available_position())

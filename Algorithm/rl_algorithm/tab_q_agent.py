@@ -23,54 +23,88 @@ class Tabular_Q_Agent:
 
     def imitate_q_(self, pref_w=None, demo=None):
         epsilon = 0.5
-        alpha = 0.01
+        alpha = 0.1
         expected_utility_list = []
         num_of_parts = len(demo)
         train_cnt = 0
-        for i in range(num_of_parts)[::-1]:
-            # after find a better traj, reset the state index one step backward
-            reset_idx = i
-            sub_demo = demo[reset_idx-1:]
-            utility_threshold = self.get_utility_threshold(demo=sub_demo, pref_w=pref_w)
-            eval_utility = -np.inf
-            step = 0
-            print(f"sub_demo:{sub_demo}\tutility_thres:{utility_threshold}")
-            # while the agent does not learn a policy not worse than the demo
-            while eval_utility < utility_threshold and step < 5000:
-                terminal = False
-                step += 1
-                # reset to the start point
-                image, state = self.env.reset_to_state(reset_to=demo[reset_idx-1])
-                print(f"reset to:{state}")
-                while not terminal:
-                    action = self.epsilon_greedy(state, epsilon)
-                    rews, n_image, terminal, n_state, shaping_reward, t_r = self.env.step(action)
-                    reward = np.dot(rews, pref_w)
 
-                    # -------------------Train------------------#
-                    TD_target = reward + self.gamma * np.max(self.Q_table[n_state[0]][n_state[1]])
-                    TD_error = TD_target - self.Q_table[state[0]][state[1]][action]
+        overall_utility_thres = self.get_utility_threshold(demo=demo[1:], pref_w=pref_w)
+        print(f"overall_utility_thres:{overall_utility_thres}")
 
-                    # print(f"TD_error:{TD_error}")
-                    self.Q_table[state[0]][state[1]][action] += alpha * TD_error
-                    state = n_state
+        utility, _ = self.play_sub_episode(pref_w=pref_w, reset_to=demo[0])
+        while utility < overall_utility_thres:
+            terminal = False
+            h_pointer = len(demo) - 2
+            action_list = self.env.state_traj_to_actions(state_demo=demo[:h_pointer])
+            image, state = self.env.reset_to_state(reset_to=demo[0])
 
-                    train_cnt += 1
-                    if train_cnt % 10 == 0:
-                        utility, _ = self.play_sub_episode(pref_w=pref_w, reset_to=demo[0])
-                        expected_utility_list.append(utility)
-                eval_utility, traj = self.play_sub_episode(pref_w=pref_w, reset_to=demo[reset_idx-1])
-                print(f"eval_utility:{eval_utility}\ttraj:{traj}")
-                print("-------------------")
+            for action in action_list:  # guide policy takes over
+                rews, n_image, terminal, n_state, shaping_reward, t_r = self.env.step(action)
+                reward = np.dot(rews, pref_w)
+
+                # -------------------Train------------------#
+                TD_target = reward + self.gamma * np.max(self.Q_table[n_state[0]][n_state[1]])
+                TD_error = TD_target - self.Q_table[state[0]][state[1]][action]
+
+                # print(f"TD_error:{TD_error}")
+                self.Q_table[state[0]][state[1]][action] += alpha * TD_error
+                state = n_state
+                train_cnt+=1
+
+            while not terminal:  # explore policy takes over
+                action = self.epsilon_greedy(state, epsilon)
+                rews, n_image, terminal, n_state, shaping_reward, t_r = self.env.step(action)
+                reward = np.dot(rews, pref_w)
+
+                # -------------------Train------------------#
+                TD_target = reward + self.gamma * np.max(self.Q_table[n_state[0]][n_state[1]])
+                TD_error = TD_target - self.Q_table[state[0]][state[1]][action]
+
+                # print(f"TD_error:{TD_error}")
+                self.Q_table[state[0]][state[1]][action] += alpha * TD_error
+                state = n_state
+                train_cnt += 1
+            utility, _ = self.play_sub_episode(pref_w=pref_w, reset_to=demo[0])
+
+        # for i in range(1, num_of_parts - 1)[::-1]:
+        #     # after find a better traj, reset the state index one step backward
+        #     reset_idx = i
+        #     sub_demo = demo[reset_idx:]
+        #     utility_threshold = self.get_utility_threshold(demo=sub_demo[1:], pref_w=pref_w)
+        #     eval_utility = -np.inf
+        #     step = 0
+        #     print(f"sub_demo:{sub_demo}\tutility_thres:{utility_threshold}")
+        #     # while the agent does not learn a policy not worse than the demo
+        #     while eval_utility < utility_threshold and step < 500:
+        #         terminal = False
+        #         step += 1
+        #         # reset to the start point
+        #         image, state = self.env.reset_to_state(reset_to=demo[reset_idx])
+        #         print(f"reset to:{state}")
+        #         while not terminal:
+        #             action = self.epsilon_greedy(state, epsilon)
+        #             rews, n_image, terminal, n_state, shaping_reward, t_r = self.env.step(action)
+        #             reward = np.dot(rews, pref_w)
+        #
+        #             # -------------------Train------------------#
+        #             TD_target = reward + self.gamma * np.max(self.Q_table[n_state[0]][n_state[1]])
+        #             TD_error = TD_target - self.Q_table[state[0]][state[1]][action]
+        #
+        #             # print(f"TD_error:{TD_error}")
+        #             self.Q_table[state[0]][state[1]][action] += alpha * TD_error
+        #             state = n_state
+        #
+        #             train_cnt += 1
+        #             if train_cnt % 10 == 0:
+        #                 utility, _ = self.play_sub_episode(pref_w=pref_w, reset_to=demo[0])
+        #                 expected_utility_list.append(utility)
+        #         eval_utility, traj = self.play_sub_episode(pref_w=pref_w, reset_to=demo[reset_idx])
+        #         print(f"utility_thres:{utility_threshold}\teval_utility:{eval_utility}\ttraj:{traj}")
+        #         print("-------------------")
         return expected_utility_list
 
     def get_utility_threshold(self, demo, pref_w):
-        vec_rewards = np.zeros(2)
-        gamma = 1
-        for pos in demo:
-            vec_rewards += gamma * self.env.calculate_reward(player_pos=pos)
-            gamma *= self.gamma
-        utility = np.dot(vec_rewards, pref_w)
+        utility = self.env.calculate_utility(demo=demo, pref_w=pref_w)
         return utility
 
     def play_sub_episode(self, reset_to, pref_w):
