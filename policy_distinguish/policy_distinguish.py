@@ -14,7 +14,7 @@ from simulators.deep_sea_treasure.preference_space import PreferenceSpace
 from keras import layers
 from keras import backend as K
 from keras.losses import mse
-
+from util.utils import find_best_traj
 # from sklearn.cluster import KMeans
 # from sklearn.neighbors import LocalOutlierFactor
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -83,49 +83,20 @@ if __name__ == '__main__':
     hidden_2 = Dense(hidden_dim, activation='relu')(z)
     hidden_3 = Dense(hidden_dim, activation='relu')(hidden_2)
     output_data = Dense(input_dim)(hidden_3)
-
     autoencoder = Model(input_data, output_data)
     optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3)
 
     # Load in the archive
     archive = np.load("../Algorithm/go_explore/archives/archive.npy", allow_pickle=True).item()
     archive = dict(archive)
-    simulator = DeepSeaTreasure(img_repr=True)
 
-    pref_space = PreferenceSpace()
-    raw_pref_list = pref_space.iterate()
-    pref_traj_score = {}
-    pref_traj_rews = {}
-
-    for pref in raw_pref_list:
-        pref = tuple(pref)
-        max_score = -np.inf
-        max_traj = None
-        for k in archive[pref].keys():
-            if archive[pref][k].score > max_score and archive[pref][k].terminal:
-                max_rews = archive[pref][k].reward_vec
-                max_score = archive[pref][k].score
-                max_traj = archive[pref][k].cell_traj
-        # if not pref == (0, 1):
-        pref_traj_score[pref] = (max_traj, max_score)
-        pref_traj_rews[pref] = tuple(max_rews)
-
-    preference_list = []
-    rew_vec_list = []
-
-    for pref, rews in pref_traj_rews.items():  # treasure, step
-        preference_list.append(np.array(pref))
-        rew_vec_list.append(np.array([rews[0], rews[1]]))
-        print(f"pref:{pref}|rews:{rews}|utility:{np.dot(rews, pref)}")
-
+    pref_traj_score, pref_traj_rews, rew_vec_list, preference_list = find_best_traj(archive=archive)
     rew_vec_list = np.array(rew_vec_list)
     rew_data = np.expand_dims(rew_vec_list, axis=0)
-    # print(f"reward_vec_list:{rew_data}")
 
     # Pre-train
     pre_train_dataset = tf.data.Dataset.from_tensor_slices((rew_data, rew_data))
     autoencoder.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
-    # autoencoder.fit(pre_train_dataset, epochs=1000)
 
     rew_data = []
     mask = np.array([0.00, 1])  # filter the traj

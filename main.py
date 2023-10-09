@@ -20,11 +20,11 @@
 #           f"info:{info}")
 # # Optionally, you can scalarize the reward function with the LinearReward wrapper
 # # env = mo_gym.LinearReward(env, weight=np.array([0.8, 0.2, 0.2]))
-from Algorithm.go_explore.explore import traj_cost_calculate
+from Algorithm.go_explore.explore import traj_utility_calculate
 from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 import numpy as np
 simulator = DeepSeaTreasure()
 pref = np.array([0.1,0.9])
 traj = [[9, 9], [10, 9]]
-cumulative_rewards = traj_cost_calculate(traj[1:], simulator)
+cumulative_rewards = traj_utility_calculate(traj[1:], simulator)
 print(f"cumulative_rewards:{cumulative_rewards},\t{np.dot(cumulative_rewards, pref)}")

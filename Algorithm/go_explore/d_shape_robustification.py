@@ -6,7 +6,7 @@ from util.utils import ACTIONS
 from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 from Algorithm.rl_algorithm.backward_Q_agent import Tabular_Q_Agent
 from simulators.deep_sea_treasure.preference_space import PreferenceSpace
-from Algorithm.go_explore.explore import traj_cost_calculate
+from Algorithm.go_explore.explore import traj_utility_calculate
 
 archive = np.load("archives/archive.npy",
                   allow_pickle=True).item()

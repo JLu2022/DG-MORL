@@ -6,6 +6,8 @@ from simulators.abstract_simulator import AbstractSimulator
 from util.utils import coord_to_pos, pos_to_coord
 from util.utils import ACTIONS
 
+GAMMA = 0.99
+
 
 class DeepSeaTreasure(AbstractSimulator):
     def __init__(self, visualization=False, submarine_pos=None, num_of_row=11, num_of_col=11, img_repr=False):
@@ -35,17 +37,17 @@ class DeepSeaTreasure(AbstractSimulator):
         # row_11 = (0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1)
         # row_12 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-        row_1 = (-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0)
-        row_2 = (0.7, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0)
-        row_3 = (0, 8.2, -1, -1, -1, -1, -1, -1, -1, -1, 0)
-        row_4 = (0, 0, 11.5, -1, -1, -1, -1, -1, -1, -1, 0)
-        row_5 = (0, 0, 0, 14.0, 15.1, 16.1, -1, -1, -1, -1, 0)
-        row_6 = (0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0)
-        row_7 = (0, 0, 0, 0, 0, 0, -1, -1, -1, -1, 0)
-        row_8 = (0, 0, 0, 0, 0, 0, 19.6, 20.3, -1, -1, 0)
-        row_9 = (0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 0)
-        row_10 = (0, 0, 0, 0, 0, 0, 0, 0, 22.4, -1, 0)
-        row_11 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 23.7, 0)
+        row_1 = (-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+        row_2 = (0.7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+        row_3 = (0, 8.2, -1, -1, -1, -1, -1, -1, -1, -1, -1)
+        row_4 = (0, 0, 11.5, -1, -1, -1, -1, -1, -1, -1, -1)
+        row_5 = (0, 0, 0, 14.0, 15.1, 16.1, -1, -1, -1, -1, -1)
+        row_6 = (0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1)
+        row_7 = (0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1)
+        row_8 = (0, 0, 0, 0, 0, 0, 19.6, 20.3, -1, -1, -1)
+        row_9 = (0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1)
+        row_10 = (0, 0, 0, 0, 0, 0, 0, 0, 22.4, -1, -1)
+        row_11 = (0, 0, 0, 0, 0, 0, 0, 0, 0, 23.7, -1)
         # self.num_of_row = num_of_row
         # self.num_of_col = num_of_col
         self.size = 11
@@ -145,7 +147,7 @@ class DeepSeaTreasure(AbstractSimulator):
         rewards[0] = -1
         shaping_reward = 0
         treasure_reward = 0
-        d_shaping_reward= 0
+        d_shaping_reward = 0
         terminal = False
         # print(f"r:{self.row}\tc:{self.col}")
         if d_goal:
@@ -282,52 +284,103 @@ class DeepSeaTreasure(AbstractSimulator):
         else:
             return False
 
+    def calculate_utility(self, demo, pref_w):
+        rewards = np.zeros(2)
+        gamma = 1
+        for pos in demo:
+            row = pos[0]
+            col = pos[1]
+            if not self.background_map[row][col] == 0 and not self.background_map[row][col] == -1:
+                rewards += gamma * np.array([-1, self.background_map[row][col]])
+                # print(f"reach:{self.background_map[row][col]}")
+            else:
+                rewards += gamma * np.array([-1, 0])
+            gamma *= GAMMA
+        utility = np.dot(rewards, pref_w)
+        return utility
+
 
 if __name__ == '__main__':
     dst_env = DeepSeaTreasure(visualization=True)
     dst_env.reset(put_submarine=False)
-    # print(dst_env.show_available_position())
-    print(dst_env.img_map)
-    positions = []
-    train_set = []
-    # for row in range(11):
-    #     for col in range(10):
-    #         if dst_env.img_map[row][col] == -1:
-    #             positions.append([row, col])
-    # for position in positions:
-    #     dst_env.reset(put_submarine=False)
-    #     dst_env.row = position[0]
-    #     dst_env.col = position[1]
-    #     dst_env.add_submarine()
-    #     train_set.append(np.array([dst_env.render_map(dst_env.img_map).flatten() / 255]))
-    #
-    #     img = dst_env.render_map(dst_env.img_map)
-    #     plt.imshow(img)
-    #     plt.show(block=False)
-    #     plt.pause(0.2)
-    #     plt.close()
-    terminal = False
-    image, position = dst_env.reset()
-    print(f"position:{position}")
-    plt.imshow(image)
-    plt.show()
-    # plt.pause(0.2)
-    # plt.close()
-    # while True:
-    #     action = random.randint(0, 3)
-    #     rewards, image, terminal, position = dst_env.step(action=action)
-    #     print(f"reward:{rewards}\n"
-    #           f"action:{ACTIONS[action]}\n"
-    #           f"terminal:{terminal}\n"
-    #           f"position:{position}\n"
-    #           f"======================")
-    #     plt.imshow(image)
-    #     plt.show(block=False)
-    #     plt.pause(0.4)
-    #     plt.close()
+    traj_to_10_9 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+                    (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (9, 9), (10, 9)]
 
-    # image, pos = dst_env.reset_to_state(reset_to=(1, 3), put_submarine=True)
-    rewards, image, terminal, position, d_shaping_reward, treasure_reward = dst_env.step(action=1)
-    print(f"terminal:{terminal}")
-    plt.imshow(image)
-    plt.show()
+    traj_to_9_8 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+                   (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8), (8, 8), (9, 8)]
+
+    traj_to_7_7 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (2, 7),
+                   (3, 7), (4, 7), (5, 7), (6, 7), (7, 7)]
+
+    traj_to_7_6 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (2, 6), (3, 6),
+                   (4, 6), (5, 6), (6, 6), (7, 6)]
+
+    traj_to_4_5 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (2, 5), (3, 5), (4, 5)]
+    traj_to_4_4 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (2, 4), (3, 4), (4, 4)]
+    traj_to_4_3 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (2, 3), (3, 3), (4, 3)]
+    traj_to_3_2 = [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2), (3, 2)]
+    traj_to_2_1 = [(0, 0), (0, 1), (1, 1), (2, 1)]
+    traj_to_1_0 = [(0, 0), (1, 0)]
+    trajs = [traj_to_10_9, traj_to_9_8, traj_to_7_7, traj_to_7_6, traj_to_4_5, traj_to_4_4, traj_to_4_3, traj_to_3_2,
+             traj_to_2_1, traj_to_1_0]
+    treasure_w = 0.0
+    sum_utility = 0
+    # pref_list = [1, 0.7, 0.67, 0.66, 0.58, 0.54, 0.51, 0.47, 0.39, 0.21]
+    for i in range(101):
+    # for treasure_w in pref_list:
+        treasure_w = round((100 - i) / 100, 2)
+        utility_list = []
+        for traj in trajs:
+            utility = dst_env.calculate_utility(demo=traj[1:], pref_w=np.array([1 - treasure_w, treasure_w]))
+            utility_list.append(utility)
+        sum_utility += max(utility_list)
+        idx = np.argmax(utility_list)
+        print(f"pref:{[1 - treasure_w, treasure_w]}\tmax_utility:{max(utility_list)}\tpos:{10 - idx}")
+    print(f"avg utility:{sum_utility / 101}")
+    # print(f"utility:{utility}")
+    # print("-------------------------------")
+    # # print(dst_env.show_available_position())
+    # print(dst_env.img_map)
+    # positions = []
+    # train_set = []
+    # # for row in range(11):
+    # #     for col in range(10):
+    # #         if dst_env.img_map[row][col] == -1:
+    # #             positions.append([row, col])
+    # # for position in positions:
+    # #     dst_env.reset(put_submarine=False)
+    # #     dst_env.row = position[0]
+    # #     dst_env.col = position[1]
+    # #     dst_env.add_submarine()
+    # #     train_set.append(np.array([dst_env.render_map(dst_env.img_map).flatten() / 255]))
+    # #
+    # #     img = dst_env.render_map(dst_env.img_map)
+    # #     plt.imshow(img)
+    # #     plt.show(block=False)
+    # #     plt.pause(0.2)
+    # #     plt.close()
+    # terminal = False
+    # image, position = dst_env.reset()
+    # print(f"position:{position}")
+    # plt.imshow(image)
+    # plt.show()
+    # # plt.pause(0.2)
+    # # plt.close()
+    # # while True:
+    # #     action = random.randint(0, 3)
+    # #     rewards, image, terminal, position = dst_env.step(action=action)
+    # #     print(f"reward:{rewards}\n"
+    # #           f"action:{ACTIONS[action]}\n"
+    # #           f"terminal:{terminal}\n"
+    # #           f"position:{position}\n"
+    # #           f"======================")
+    # #     plt.imshow(image)
+    # #     plt.show(block=False)
+    # #     plt.pause(0.4)
+    # #     plt.close()
+    #
+    # # image, pos = dst_env.reset_to_state(reset_to=(1, 3), put_submarine=True)
+    # rewards, image, terminal, position, d_shaping_reward, treasure_reward = dst_env.step(action=1)
+    # print(f"terminal:{terminal}")
+    # plt.imshow(image)
+    # plt.show()

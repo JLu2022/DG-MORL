@@ -82,12 +82,12 @@ class Tabular_Q_Agent:
             sub_demo = demo[reset_idx + 1:]
             rews_threshold = np.zeros(2)
             for demo_s in sub_demo:
-                rews_threshold += self.env.calculate_reward(player_pos=demo_s)
+                rews_threshold = self.env.calculate_reward(player_pos=demo_s) + rews_threshold * gamma
             evaluation_rew = -np.inf
-            rew_threshold = round(np.dot(rews_threshold, pref_w), 2)
-
+            # rew_threshold = round(np.dot(rews_threshold, pref_w), 2)
+            rew_threshold = np.dot(rews_threshold, pref_w)
             step = 0
-            while evaluation_rew < rew_threshold and step < 4000:  # while the agent does not learn a policy not worse than the demo
+            while evaluation_rew < rew_threshold and step < 5000:  # while the agent does not learn a policy not worse than the demo
                 step += 1
                 image, state = self.env.reset_to_state(reset_to=demo[reset_idx])  # reset to the start point
                 terminal = False
@@ -106,11 +106,12 @@ class Tabular_Q_Agent:
                     train_cnt += 1
                     if train_cnt % 10 == 0:
                         episode_reward, episode_rewards = self.play_a_episode(pref=pref_w, agent=self)
-                        expected_rewards_list.append(episode_reward)
+                        expected_rewards_list.append(episode_rewards)
                 evaluation_rew, state_list = self.play_sub_episode(reset_to=demo[reset_idx], pref=pref_w)
         return expected_rewards_list
 
     def play_sub_episode(self, reset_to, pref):
+        gamma = 0.99
         episode_reward = 0
         terminal = False
         image, state = self.env.reset_to_state(reset_to=reset_to)
@@ -119,7 +120,7 @@ class Tabular_Q_Agent:
             action = self.epsilon_greedy(state, epsilon=0)
             rewards, n_image, terminal, n_state, shaping_reward, treasure_reward = self.env.step(action)
             # print(f"rewards:{rewards}")
-            episode_reward += np.dot(rewards, pref)
+            episode_reward = np.dot(rewards, pref) + gamma * episode_reward
             state = n_state
             state_list.append(state)
         # print(f"state_list:{state_list}")
@@ -134,11 +135,10 @@ class Tabular_Q_Agent:
         image, state = env_try.reset()
         cnt = 0
         while not terminal:
-
             action = agent.epsilon_greedy(state, epsilon=0)
             rewards, n_image, terminal, n_state, shaping_reward, treasure_reward = env_try.step(action)
 
-            episode_rewards += rewards*(0.99**cnt)
+            episode_rewards += rewards * (0.99 ** cnt)
             cnt += 1
             state = n_state
         episode_reward = float(np.dot(episode_rewards, pref))

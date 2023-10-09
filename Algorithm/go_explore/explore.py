@@ -8,17 +8,23 @@ from simulators.deep_sea_treasure.preference_space import PreferenceSpace
 from decimal import Decimal
 
 cross = "----------------------------------"
+GAMMA = 0.99
 
 
-def traj_cost_calculate(traj, simulator):
+def traj_utility_calculate(traj, simulator, pref_w):
+    gamma = 1
     simulator.reset()
-    sum_rewards = np.zeros(2)
+    vec_return = np.zeros(2)
+    disc_vec_rew = np.zeros(2)
     # print(f"cumulative_rewards:{cumulative_rewards}")
     for pos in traj:
-        reward = simulator.calculate_reward(pos)
-        sum_rewards += reward
+        vec_reward = simulator.calculate_reward(pos)
+        disc_vec_rew += vec_reward * gamma
+        vec_return += vec_reward * gamma
+        gamma *= GAMMA
+    utility = np.dot(disc_vec_rew, pref_w)
 
-    return sum_rewards
+    return vec_return, utility
 
 
 def calc_sample_prob(archive):
@@ -27,9 +33,7 @@ def calc_sample_prob(archive):
 
     for key in list(archive.keys()):
         cell = archive[key]
-
         nums_of_visit += cell.num_of_visit
-
         probs.append(1 / (cell.num_of_visit))
     probs = np.array(probs)
     probs = probs / np.sum(probs)
@@ -41,7 +45,7 @@ if __name__ == '__main__':
     simulator_ = copy.deepcopy(simulator)
     pref_space = PreferenceSpace()
     pref_list = pref_space.iterate()
-    # print(f"pref_list:{pref_list}")
+    # pref_list = [[0.33, 0.67]]
     deterministic_archive = DeterministicArchive()
 
     for pref in pref_list:
@@ -50,8 +54,11 @@ if __name__ == '__main__':
         print(f"pref:{pref}")
         init_pos = (0, 0)
         cell_key = init_pos  # row, col, treasure, step
-        initial_cell_info = CellInfo(cell_traj=[init_pos], num_of_visit=1, score=-np.inf,
+        initial_cell_info = CellInfo(cell_traj=[init_pos],
+                                     num_of_visit=1,
+                                     score=-np.inf,
                                      terminal=False)  # cell key: task, time
+
         deterministic_archive.update_cell(utility_key=pref, cell_key=cell_key, cell_info=initial_cell_info)
     print(deterministic_archive.archive.items())
 
@@ -61,7 +68,7 @@ if __name__ == '__main__':
         for sample_epi in range(2201):
             prob = calc_sample_prob(deterministic_archive.archive[pref])
             cell_key = random.choices(list(deterministic_archive.archive[pref].keys()), prob, k=1)[0]
-            if simulator.calculate_reward(cell_key)[1] >= 0.7:
+            if simulator.calculate_reward(cell_key)[1] >= 0.5:
                 terminal = True
             else:
                 terminal = False
@@ -74,16 +81,16 @@ if __name__ == '__main__':
 
                 cell_key = position
                 trajectory.append(cell_key)
-                cumulative_rewards = traj_cost_calculate(trajectory[1:], simulator_)
-                scalar_reward = np.dot(cumulative_rewards, np.array(pref))
-                cell_info = CellInfo(cell_traj=trajectory[:], num_of_visit=1, score=float(scalar_reward),
+
+                cumulative_rewards, utility = traj_utility_calculate(trajectory[2:], simulator_, pref_w=pref)
+                cell_info = CellInfo(cell_traj=trajectory[:], num_of_visit=1, score=float(utility),
                                      reward_vec=list(cumulative_rewards), terminal=terminal)
                 deterministic_archive.update_cell(utility_key=pref, cell_key=cell_key, cell_info=cell_info)
 
-        for cell in deterministic_archive.archive[pref].keys():
-            print(f"pref:{pref}\t"
-                  f"cell:{cell}"
-                  f"{deterministic_archive.archive[pref][cell]}")
+        # for cell in deterministic_archive.archive[pref].keys():
+        #     print(f"pref:{pref}\t"
+        #           f"cell:{cell}"
+        #           f"{deterministic_archive.archive[pref][cell]}")
 
     for pref in sorted(deterministic_archive.archive.keys()):
         scalar_reward_list = []
@@ -91,7 +98,6 @@ if __name__ == '__main__':
             scalar_reward_list.append(deterministic_archive.archive[pref][cell].score)
         scalar_reward_list = np.array(scalar_reward_list)
         max_index = np.argmax(scalar_reward_list)
-        print(
-            f"pref:{pref}\tcell:{list(deterministic_archive.archive[pref].keys())[max_index]}\treward:{scalar_reward_list[max_index]}\n{cross}")
+        print(f"pref:{pref}\tcell:{list(deterministic_archive.archive[pref].keys())[max_index]}\treward:{scalar_reward_list[max_index]}\n{cross}")
 
-    np.save("archives/archive.npy",deterministic_archive.archive)
+    np.save("archives/archive.npy", deterministic_archive.archive)

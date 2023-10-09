@@ -6,7 +6,7 @@ from simulators.discrete_grid_world import ImageGridWorld
 from util.utils import ACTIONS
 from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 from simulators.deep_sea_treasure.preference_space import PreferenceSpace
-from explore import traj_cost_calculate
+from explore import traj_utility_calculate
 from Algorithm.rl_algorithm.D_shaped_DQN import DQNAgent
 
 archive = np.load("C:/Users/19233436/PycharmProjects/MOGOExplore/simulation/deep_sea_treasure/archive/archive.npy",

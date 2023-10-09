@@ -6,7 +6,7 @@ from simulators.discrete_grid_world import ImageGridWorld
 from util.utils import ACTIONS
 from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 from simulators.deep_sea_treasure.preference_space import PreferenceSpace
-from explore import traj_cost_calculate
+from explore import traj_utility_calculate
 
 terminal_state = (0, 24)
 
@@ -53,7 +53,7 @@ for pref_index in range(1, len(pref_list)):
     for i in range(2, len(pref_traj_score[pref][0][:]) + 1):
         init_traj = pref_traj_score[pref][0][-i:]
         # print(init_traj)
-        cumulative_rewards = traj_cost_calculate(init_traj[1:], other_simulator)
+        cumulative_rewards = traj_utility_calculate(init_traj[1:], other_simulator)
         print(cross)
         print(f"pref:{pref}\n"
               f"demonstration traj:{init_traj}\n"
