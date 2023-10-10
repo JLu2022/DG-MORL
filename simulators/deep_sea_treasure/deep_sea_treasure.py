@@ -286,18 +286,21 @@ class DeepSeaTreasure(AbstractSimulator):
 
     def calculate_utility(self, demo, pref_w):
         rewards = np.zeros(2)
+        pure_rewards = np.zeros(2)
         gamma = 1
         for pos in demo:
             row = pos[0]
             col = pos[1]
             if not self.background_map[row][col] == 0 and not self.background_map[row][col] == -1:
                 rewards += gamma * np.array([-1, self.background_map[row][col]])
+                pure_rewards += np.array([-1, self.background_map[row][col]])
                 # print(f"reach:{self.background_map[row][col]}")
             else:
                 rewards += gamma * np.array([-1, 0])
+                pure_rewards += np.array([-1, 0])
             gamma *= GAMMA
         utility = np.dot(rewards, pref_w)
-        return utility
+        return utility, pure_rewards
 
     def state_traj_to_actions(self, state_demo):
         action_list = []
@@ -312,9 +315,24 @@ class DeepSeaTreasure(AbstractSimulator):
                 action_list.append(2)
             if move[0] == 0 and move[1] == 1:
                 action_list.append(3)
+            if move[0] == 0 and move[1] == 0:
+                if state_demo[i][0] == 0:
+                    action_list.append(0)
+                if state_demo[i][0] == 10:
+                    action_list.append(1)
+                if state_demo[i][1] == 10:
+                    action_list.append(3)
+                if state_demo[i][0] == 5 and state_demo[i][1] == 6:
+                    action_list.append(2)
+                if state_demo[i][0] == 6 and state_demo[i][1] == 6:
+                    action_list.append(2)
+                if state_demo[i][0] == 8 and state_demo[i][1] == 8:
+                    action_list.append(2)
             # print(np.array(state_demo[i + 1]) - np.array(state_demo[i]))
         # print(action_list)
         return action_list
+
+
 # 0:up 1:down 2:left 3:right
 
 

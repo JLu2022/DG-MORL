@@ -11,7 +11,7 @@ simulator = DeepSeaTreasure(img_repr=True)
 corner_weights = np.load("corner_weights.npy")
 pref_traj_score = np.load("pref_traj_score.npy", allow_pickle=True).item()
 pref_traj_score = dict(pref_traj_score)
-print(corner_weights)
+# print(corner_weights)
 
 expected_utility_list = []
 cnt = 0
@@ -29,36 +29,67 @@ print(intervals)
 # print(len(intervals))
 interval_pnt = 0
 pre_interval_pnt = -np.inf
-for pref_w in pref_space.iterate()[:-1]:
-    if pref_w[1] == intervals[interval_pnt][1] and not pref_w[1] == 0:
-        interval_pnt += 1
-    print(f"pref_w:{pref_w}\tcorner_w:{corner_weights[interval_pnt]}")
 
+for pref_w in corner_weights:
+    pref_w = tuple(pref_w)
+    demo = pref_traj_score[pref_w][0]
+    print(f"w:{pref_w}\ttraj:{demo}")
+# traj_to_10_9 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+#                     (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (9, 9), (10, 9)]
+#
+# traj_to_9_8 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
+#                    (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8), (8, 8), (9, 8)]
+#
+# traj_to_7_7 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (2, 7),
+#                    (3, 7), (4, 7), (5, 7), (6, 7), (7, 7)]
+#
+# traj_to_7_6 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (2, 6), (3, 6),
+#                    (4, 6), (5, 6), (6, 6), (7, 6)]
+#
+# traj_to_4_5 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (2, 5), (3, 5), (4, 5)]
+# traj_to_4_4 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (2, 4), (3, 4), (4, 4)]
+# traj_to_4_3 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (2, 3), (3, 3), (4, 3)]
+# traj_to_3_2 = [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2), (3, 2)]
+# traj_to_2_1 = [(0, 0), (0, 1), (1, 1), (2, 1)]
+# traj_to_1_0 = [(0, 0), (1, 0)]
+# trajs = [traj_to_10_9, traj_to_9_8, traj_to_7_7, traj_to_7_6, traj_to_4_5, traj_to_4_4, traj_to_4_3, traj_to_3_2,
+#          traj_to_2_1, traj_to_1_0]
+for pref_w in corner_weights:
     agent = Tabular_Q_Agent(env=simulator, gamma=0.99)
-    pref = tuple(corner_weights[interval_pnt])
-    traj = pref_traj_score[pref][0]
-    print(f"demo traj:{traj}")
-    if not pre_interval_pnt == interval_pnt:
-        expected_utilities = agent.imitate_q_(demo=traj,
-                                              pref_w=np.array(corner_weights[interval_pnt]))
-        print(f"e_u:{expected_utilities}")
+    pref_w = tuple(pref_w)
+    # if pref_w[1] > 0.7:
+    #     traj = trajs[0]
+    # elif pref_w[1] > 0.67:
+    #     traj = trajs[1]
+    # elif pref_w[1] > 0.66:
+    #     traj = trajs[2]
+    # elif pref_w[1] > 0.58:
+    #     traj = trajs[3]
+    # elif pref_w[1] > 0.54:
+    #     traj = trajs[4]
+    # elif pref_w[1] > 0.51:
+    #     traj = trajs[5]
+    # elif pref_w[1] > 0.47:
+    #     traj = trajs[6]
+    # elif pref_w[1] > 0.39:
+    #     traj = trajs[7]
+    # elif pref_w[1] > 0.21:
+    #     traj = trajs[8]
+    # elif pref_w[1] > 0:
+    #     traj = trajs[9]
+    # if True:
+    demo = pref_traj_score[pref_w][0]
+    print(f"w:{pref_w}\ndemo traj:{demo}")
+    expected_utilities = agent.jsmoq_discrete(demo=demo,
+                                                  pref_w=np.array(pref_w))
+        # if not expected_utilities:
+        #     print(f"empty list @ w:{pref_w}\texpected_utilities:{expected_utilities}")
+        # print(f"e_u:{expected_utilities}")
     expected_utility_list.append(np.array(expected_utilities))
-    pre_interval_pnt = interval_pnt
-
-# for pref in corner_weights:
-#     agent = Tabular_Q_Agent(env=simulator)
-#     pref = tuple(pref)
-#     traj = pref_traj_score[pref][0]
-#     print(f"demo traj:{traj}")
-#     expected_rewards_list = agent.imitate_q_(demo=traj,
-#                                              pref_w=np.array(pref))
-#     expected_utility = np.dot(expected_rewards_list, pref)
-#     print(f"expected_utility:{expected_utility}")
-#     expected_utility_list.append(np.array(expected_utility))
 
 # 找到最大长度
 max_length = max(len(lst) for lst in expected_utility_list if len(lst) > 0)
-# max_length = 40000
+max_length = 40000
 # 创建一个新的NumPy数组，填充为最大长度，使用列表的最后一个元素来填充，如果列表为空，则跳过
 extended_lists = np.array([np.pad(lst, (0, max_length - len(lst)), 'constant', constant_values=lst[-1]) if len(
     lst) > 0 else np.full(max_length, np.nan) for lst in expected_utility_list])
@@ -68,16 +99,3 @@ print(extended_lists)
 print(len(extended_lists))
 print(np.mean(extended_lists, axis=0))
 np.save("expected_utility_list.npy", extended_lists)
-
-#     episode_reward, episode_rewards = agent.play_a_episode(pref=np.array(w), agent=agent)
-#     print(f"w:{w}|\texpected_utility_list:{expected_utility_list}")
-#     robustified_rewards.append(episode_rewards)
-#
-# robustified_rewards = np.array(robustified_rewards)
-#
-# plt.scatter(robustified_rewards[:, 0], robustified_rewards[:, 1], color='r', marker='o',
-#             label='points found by robustification')
-# plt.xlabel('time')
-# plt.ylabel('treasure')
-# plt.legend()
-# plt.show()
