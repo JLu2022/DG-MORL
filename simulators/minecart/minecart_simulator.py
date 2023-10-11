@@ -571,8 +571,8 @@ class Minecart(gym.Env, EzPickle):
         if self.image_observation:
             self.render_pygame()
 
-        self.cart.content = np.zeros(self.ore_cnt)
-        self.cart.pos = np.array(HOME_POS)
+        self.cart.content = np.zeros(self.ore_cnt)  #重置库存
+        self.cart.pos = np.array(HOME_POS)  #重置位置
         self.cart.speed = 0
         self.cart.angle = 45
         self.cart.departed = False
