@@ -436,27 +436,27 @@ class Minecart(gym.Env, EzPickle):
         change = False  # Keep track of whether the state has changed
         reward = np.zeros(self.ore_cnt + 1, dtype=np.float32)
 
-        reward[-1] = FUEL_IDLE * self.frame_skip
+        reward[-1] = FUEL_IDLE * self.frame_skip # 空闲耗油
 
         if action == ACT_ACCEL:
-            reward[-1] += FUEL_ACC * self.frame_skip
+            reward[-1] += FUEL_ACC * self.frame_skip # 加速耗油
         elif action == ACT_MINE:
-            reward[-1] += FUEL_MINE * self.frame_skip
+            reward[-1] += FUEL_MINE * self.frame_skip #采矿耗油
 
         for _ in range(self.frame_skip if self.incremental_frame_skip else 1):
             if action == ACT_LEFT:
-                self.cart.rotate(-ROTATION * (1 if self.incremental_frame_skip else self.frame_skip))
+                self.cart.rotate(-ROTATION * (1 if self.incremental_frame_skip else self.frame_skip)) # 旋转10
                 change = True
             elif action == ACT_RIGHT:
                 self.cart.rotate(ROTATION * (1 if self.incremental_frame_skip else self.frame_skip))
                 change = True
             elif action == ACT_ACCEL:
-                self.cart.accelerate(ACCELERATION * (1 if self.incremental_frame_skip else self.frame_skip))
+                self.cart.accelerate(ACCELERATION * (1 if self.incremental_frame_skip else self.frame_skip))#加速0.0075
             elif action == ACT_BRAKE:
-                self.cart.accelerate(-DECELERATION * (1 if self.incremental_frame_skip else self.frame_skip))
+                self.cart.accelerate(-DECELERATION * (1 if self.incremental_frame_skip else self.frame_skip))#减速1
             elif action == ACT_MINE:
                 for _ in range(1 if self.incremental_frame_skip else self.frame_skip):
-                    change = self.mine() or change
+                    change = self.mine() or change # 如果挖矿则change 反之不change
 
             if self.end:
                 break
@@ -489,7 +489,7 @@ class Minecart(gym.Env, EzPickle):
         Returns:
             bool -- True if something was mined
         """
-        if self.cart.speed < EPS_SPEED:
+        if self.cart.speed < EPS_SPEED: #速度小于临界速度0.001时
             # Get closest mine
             mine = min(self.mines, key=lambda mine: mine.distance(self.cart))
 
@@ -534,10 +534,10 @@ class Minecart(gym.Env, EzPickle):
         if self.image_observation:
             state = self.get_pixels(update)
         else:
-            angle = math.radians(self.cart.angle)
+            angle = math.radians(self.cart.angle) # 转换成弧度制角度
             sina = math.sin(angle)
             cosa = math.cos(angle)
-            angle = np.array([sina, cosa], dtype=np.float32)
+            angle = np.array([sina, cosa], dtype=np.float32) # 分算正弦、余弦角
             state = np.concatenate(
                 (
                     self.cart.pos,
@@ -573,10 +573,10 @@ class Minecart(gym.Env, EzPickle):
 
         self.cart.content = np.zeros(self.ore_cnt)  #重置库存
         self.cart.pos = np.array(HOME_POS)  #重置位置
-        self.cart.speed = 0
-        self.cart.angle = 45
-        self.cart.departed = False
-        self.end = False
+        self.cart.speed = 0 # 重置速度
+        self.cart.angle = 45 # 重置角度
+        self.cart.departed = False # 重置"出发":否
+        self.end = False # 重置"结束":否
         if self.render_mode == "human":
             self.render()
         return self.get_state(), {}
