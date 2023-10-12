@@ -564,7 +564,7 @@ class Minecart(gym.Env, EzPickle):
         super().reset(seed=seed)
 
         if self.screen is None and self.image_observation:
-            self.render(mode="rgb_array")  # init pygame
+            self.render()  # init pygame
 
         if self.image_observation:
             self.render_pygame()
