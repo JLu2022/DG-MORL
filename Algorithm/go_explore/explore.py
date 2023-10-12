@@ -95,4 +95,4 @@ if __name__ == '__main__':
         print(
             f"pref:{pref}\tcell:{list(deterministic_archive.archive[pref].keys())[max_index]}\treward:{scalar_reward_list[max_index]}\n{cross}")
 
-    np.save("archives/archive.npy", deterministic_archive.archive)
+    np.save("archives/DST/archive.npy", deterministic_archive.archive)

@@ -31,8 +31,8 @@ def find_best_traj(archive):
                 max_rews = archive[pref][k].reward_vec
                 max_score = archive[pref][k].score
                 max_traj = archive[pref][k].cell_traj
-            if 0.5 < pref[1] < 0.62:
-                print(f"pref:{pref}\tarchive[pref].keys():{archive[pref][k]}")
+            # if 0.5 < pref[1] < 0.62:
+            #     print(f"pref:{pref}\tarchive[pref].keys():{archive[pref][k]}")
         # if not pref == (0, 1):
         pref_traj_score[pref] = (max_traj, max_score)
         pref_traj_rews[pref] = tuple(max_rews)
@@ -43,7 +43,7 @@ def find_best_traj(archive):
     for pref, rews in pref_traj_rews.items():  # treasure, step
         preference_list.append(np.array(pref))
         rew_vec_list.append(np.array([rews[0], rews[1]]))
-        print(f"pref:{pref}|rews:{rews}|utility:{np.dot(rews, pref)}")
+        # print(f"pref:{pref}|rews:{rews}|utility:{np.dot(rews, pref)}")
     return pref_traj_score, pref_traj_rews, rew_vec_list, preference_list
 
 

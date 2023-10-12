@@ -1,5 +1,5 @@
 import numpy as np
-from Algorithm.rl_algorithm.tab_q_agent import Tabular_Q_Agent
+from Algorithm.rl_algorithm.tabular_Q import Tabular_Q_Agent
 from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 from simulators.deep_sea_treasure.preference_space import PreferenceSpace
 import matplotlib.pyplot as plt
@@ -81,7 +81,7 @@ for pref_w in corner_weights:
     demo = pref_traj_score[pref_w][0]
     print(f"w:{pref_w}\ndemo traj:{demo}")
     expected_utilities = agent.jsmoq_discrete(demo=demo,
-                                                  pref_w=np.array(pref_w))
+                                              pref_w=np.array(pref_w))
         # if not expected_utilities:
         #     print(f"empty list @ w:{pref_w}\texpected_utilities:{expected_utilities}")
         # print(f"e_u:{expected_utilities}")

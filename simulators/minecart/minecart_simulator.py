@@ -14,7 +14,6 @@ from gymnasium.spaces import Box, Discrete
 from gymnasium.utils import EzPickle
 from scipy.spatial import ConvexHull
 
-
 EPS_SPEED = 0.001  # Minimum speed to be considered in motion
 HOME_X = 0.0
 HOME_Y = 0.0
@@ -53,7 +52,6 @@ FUEL_DICT = {
 }
 ACTIONS = ["Mine", "Left", "Right", "Accelerate", "Brake", "None"]
 ACTION_COUNT = len(ACTIONS)
-
 
 MINE_RADIUS = 0.14
 BASE_RADIUS = 0.15
@@ -136,12 +134,12 @@ class Minecart(gym.Env, EzPickle):
     metadata = {"render_modes": ["rgb_array", "human"], "render_fps": FPS}
 
     def __init__(
-        self,
-        render_mode: Optional[str] = None,
-        image_observation: bool = False,
-        frame_skip: int = 4,
-        incremental_frane_skip: bool = True,
-        config=str(Path(__file__).parent.absolute()) + "/mine_config.json",
+            self,
+            render_mode: Optional[str] = None,
+            image_observation: bool = False,
+            frame_skip: int = 4,
+            incremental_frane_skip: bool = True,
+            config=str(Path(__file__).parent.absolute()) + "/mine_config.json",
     ):
         EzPickle.__init__(self, render_mode, image_observation, frame_skip, incremental_frane_skip, config)
 
@@ -232,8 +230,8 @@ class Minecart(gym.Env, EzPickle):
         # Empty mine just outside the base
         virtual_mine = Mine(
             self.ore_cnt,
-            (base_perimeter**2 / 2) ** (1 / 2),
-            (base_perimeter**2 / 2) ** (1 / 2),
+            (base_perimeter ** 2 / 2) ** (1 / 2),
+            (base_perimeter ** 2 / 2) ** (1 / 2),
         )
         virtual_mine.distributions = [scipy.stats.norm(0, 0) for _ in range(self.ore_cnt)]
         for mine in self.mines + [virtual_mine]:
@@ -262,8 +260,8 @@ class Minecart(gym.Env, EzPickle):
                 new_speed = seq["speed"] + ACCELERATION * self.frame_skip
                 accelerations = new_speed / ACCELERATION
                 movement = (
-                    accelerations * (accelerations + 1) / 2 * ACCELERATION
-                    - (accelerations - self.frame_skip) * ((accelerations - self.frame_skip) + 1) / 2 * ACCELERATION
+                        accelerations * (accelerations + 1) / 2 * ACCELERATION
+                        - (accelerations - self.frame_skip) * ((accelerations - self.frame_skip) + 1) / 2 * ACCELERATION
                 )
                 dist = seq["dist"] - movement
                 speed = new_speed
@@ -299,10 +297,10 @@ class Minecart(gym.Env, EzPickle):
                 if not symmetric:
                     all_sequences = map(
                         lambda sequences: list(sequences[0])
-                        + list(sequences[1])
-                        + list(sequences[2])
-                        + list(sequences[3])
-                        + list(sequences[4]),
+                                          + list(sequences[1])
+                                          + list(sequences[2])
+                                          + list(sequences[3])
+                                          + list(sequences[4]),
                         itertools.product(
                             [[ACT_LEFT] * rotations],
                             trimmed_sequences,
@@ -315,10 +313,10 @@ class Minecart(gym.Env, EzPickle):
                 else:
                     all_sequences = map(
                         lambda sequences: list(sequences[0])
-                        + list(sequences[1])
-                        + list(sequences[2])
-                        + list(sequences[3])
-                        + list(sequences[1]),
+                                          + list(sequences[1])
+                                          + list(sequences[2])
+                                          + list(sequences[3])
+                                          + list(sequences[1]),
                         itertools.product(
                             [[ACT_LEFT] * rotations],
                             trimmed_sequences,
@@ -335,10 +333,10 @@ class Minecart(gym.Env, EzPickle):
                     )
                     all_sequences = map(
                         lambda sequences: list(sequences[0])
-                        + list(sequences[1])
-                        + list(sequences[2])
-                        + [ACT_NONE]
-                        + list(sequences[3])[1:],
+                                          + list(sequences[1])
+                                          + list(sequences[2])
+                                          + [ACT_NONE]
+                                          + list(sequences[3])[1:],
                         itertools.product(
                             [[ACT_LEFT] * rotations],
                             trimmed_sequences,
@@ -350,10 +348,10 @@ class Minecart(gym.Env, EzPickle):
                 else:
                     all_sequences = map(
                         lambda sequences: list(sequences[0])
-                        + list(sequences[1])
-                        + list(sequences[2])
-                        + [ACT_NONE]
-                        + list(sequences[1][1:]),
+                                          + list(sequences[1])
+                                          + list(sequences[2])
+                                          + [ACT_NONE]
+                                          + list(sequences[1][1:]),
                         itertools.product(
                             [[ACT_LEFT] * rotations],
                             trimmed_sequences,
@@ -371,12 +369,12 @@ class Minecart(gym.Env, EzPickle):
 
             longest_pattern = maxlen(trimmed_sequences)
             max_len = (
-                rotations
-                + longest_pattern
-                + 1
-                + (180 // (ROTATION * self.frame_skip))
-                + maxlen(mine_sequences)
-                + longest_pattern
+                    rotations
+                    + longest_pattern
+                    + 1
+                    + (180 // (ROTATION * self.frame_skip))
+                    + maxlen(mine_sequences)
+                    + longest_pattern
             )
             discount_map = gamma ** np.arange(max_len)
             for s in all_sequences:
@@ -436,27 +434,27 @@ class Minecart(gym.Env, EzPickle):
         change = False  # Keep track of whether the state has changed
         reward = np.zeros(self.ore_cnt + 1, dtype=np.float32)
 
-        reward[-1] = FUEL_IDLE * self.frame_skip # 空闲耗油
+        reward[-1] = FUEL_IDLE * self.frame_skip  # 空闲耗油
 
         if action == ACT_ACCEL:
-            reward[-1] += FUEL_ACC * self.frame_skip # 加速耗油
+            reward[-1] += FUEL_ACC * self.frame_skip  # 加速耗油
         elif action == ACT_MINE:
-            reward[-1] += FUEL_MINE * self.frame_skip #采矿耗油
+            reward[-1] += FUEL_MINE * self.frame_skip  # 采矿耗油
 
         for _ in range(self.frame_skip if self.incremental_frame_skip else 1):
             if action == ACT_LEFT:
-                self.cart.rotate(-ROTATION * (1 if self.incremental_frame_skip else self.frame_skip)) # 旋转10
+                self.cart.rotate(-ROTATION * (1 if self.incremental_frame_skip else self.frame_skip))  # 旋转10
                 change = True
             elif action == ACT_RIGHT:
                 self.cart.rotate(ROTATION * (1 if self.incremental_frame_skip else self.frame_skip))
                 change = True
             elif action == ACT_ACCEL:
-                self.cart.accelerate(ACCELERATION * (1 if self.incremental_frame_skip else self.frame_skip))#加速0.0075
+                self.cart.accelerate(ACCELERATION * (1 if self.incremental_frame_skip else self.frame_skip))  # 加速0.0075
             elif action == ACT_BRAKE:
-                self.cart.accelerate(-DECELERATION * (1 if self.incremental_frame_skip else self.frame_skip))#减速1
+                self.cart.accelerate(-DECELERATION * (1 if self.incremental_frame_skip else self.frame_skip))  # 减速1
             elif action == ACT_MINE:
                 for _ in range(1 if self.incremental_frame_skip else self.frame_skip):
-                    change = self.mine() or change # 如果挖矿则change 反之不change
+                    change = self.mine() or change  # 如果挖矿则change 反之不change
 
             if self.end:
                 break
@@ -464,17 +462,17 @@ class Minecart(gym.Env, EzPickle):
             for _ in range(1 if self.incremental_frame_skip else self.frame_skip):
                 change = self.cart.step() or change
 
-            distanceFromBase = mag(self.cart.pos - HOME_POS)
-            if distanceFromBase < BASE_RADIUS * BASE_SCALE:
-                if self.cart.departed:
+            distanceFromBase = mag(self.cart.pos - HOME_POS)  # 计算矿车离基地的距离
+            if distanceFromBase < BASE_RADIUS * BASE_SCALE:  # 如果离基地很近
+                if self.cart.departed:  # 并且矿车是"离开"状态
                     # Cart left base then came back, ending the episode
-                    self.end = True
+                    self.end = True  # 则结束
                     # Sell resources
-                    reward[: self.ore_cnt] += self.cart.content
-                    self.cart.content = np.zeros(self.ore_cnt)
+                    reward[: self.ore_cnt] += self.cart.content  # 将挖到的矿存到reward中
+                    self.cart.content = np.zeros(self.ore_cnt)  # 清空矿车
             else:
                 # Cart left base
-                self.cart.departed = True
+                self.cart.departed = True  # 如果矿车离基地很远，则判断为"离开"状态
 
         if change and self.image_observation:
             self.render_pygame()
@@ -489,24 +487,24 @@ class Minecart(gym.Env, EzPickle):
         Returns:
             bool -- True if something was mined
         """
-        if self.cart.speed < EPS_SPEED: #速度小于临界速度0.001时
+        if self.cart.speed < EPS_SPEED:  # 速度小于临界速度0.001时
             # Get closest mine
-            mine = min(self.mines, key=lambda mine: mine.distance(self.cart))
+            mine = min(self.mines, key=lambda mine: mine.distance(self.cart))  # 比较，哪个矿近挖哪个
 
-            if mine.mineable(self.cart):
-                cart_free = self.capacity - np.sum(self.cart.content)
-                mined = mine.mine()
-                total_mined = np.sum(mined)
-                if total_mined > cart_free:
+            if mine.mineable(self.cart):  # 距离小于0.14*1*1时，可挖
+                cart_free = self.capacity - np.sum(self.cart.content)  # 计算矿车剩余空间
+                mined = mine.mine()  # 采随机量的两种矿
+                total_mined = np.sum(mined)  # 一共采了~
+                if total_mined > cart_free:  # 如果采的比矿车能装的多
                     # Scale mined content to remaining capacity
                     scale = cart_free / total_mined
-                    mined = np.array(mined) * scale
+                    mined = np.array(mined) * scale  # 按比例将两种矿物填满矿车
 
-                self.cart.content += mined
+                self.cart.content += mined  # 添加到矿车中
 
-                if np.sum(mined) > 0:
+                if np.sum(mined) > 0:  # 采到矿了返回True
                     return True
-        return False
+        return False  # 没采到矿返回False
 
     def get_pixels(self, update=True):
         """Get the environment's image representation
@@ -534,10 +532,10 @@ class Minecart(gym.Env, EzPickle):
         if self.image_observation:
             state = self.get_pixels(update)
         else:
-            angle = math.radians(self.cart.angle) # 转换成弧度制角度
+            angle = math.radians(self.cart.angle)  # 转换成弧度制角度
             sina = math.sin(angle)
             cosa = math.cos(angle)
-            angle = np.array([sina, cosa], dtype=np.float32) # 分算正弦、余弦角
+            angle = np.array([sina, cosa], dtype=np.float32)  # 分算正弦、余弦角
             state = np.concatenate(
                 (
                     self.cart.pos,
@@ -571,12 +569,12 @@ class Minecart(gym.Env, EzPickle):
         if self.image_observation:
             self.render_pygame()
 
-        self.cart.content = np.zeros(self.ore_cnt)  #重置库存
-        self.cart.pos = np.array(HOME_POS)  #重置位置
-        self.cart.speed = 0 # 重置速度
-        self.cart.angle = 45 # 重置角度
-        self.cart.departed = False # 重置"出发":否
-        self.end = False # 重置"结束":否
+        self.cart.content = np.zeros(self.ore_cnt)  # 重置库存
+        self.cart.pos = np.array(HOME_POS)  # 重置位置
+        self.cart.speed = 0  # 重置速度
+        self.cart.angle = 45  # 重置角度
+        self.cart.departed = False  # 重置"出发":否
+        self.end = False  # 重置"结束":否
         if self.render_mode == "human":
             self.render()
         return self.get_state(), {}
@@ -694,7 +692,7 @@ class Mine:
         return mag(cart.pos - self.pos)
 
     def mineable(self, cart):
-        return self.distance(cart) <= MINE_RADIUS * MINE_SCALE * CART_SCALE
+        return self.distance(cart) <= MINE_RADIUS * MINE_SCALE * CART_SCALE  # 0.14,1,1
 
     def mine(self):
         """Generates collected resources according to the mine's random
