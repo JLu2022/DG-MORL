@@ -1,8 +1,7 @@
 import numpy as np
-from Algorithm.rl_algorithm.tabular_Q import Tabular_Q_Agent
+from Algorithm.tabular_Q import Tabular_Q_Agent
 from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 from simulators.deep_sea_treasure.preference_space import PreferenceSpace
-import matplotlib.pyplot as plt
 
 exec(open('data_collection.py').read())
 print("Data_collection_finish.")
