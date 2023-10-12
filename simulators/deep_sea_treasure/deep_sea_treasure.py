@@ -2,9 +2,7 @@ import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-from simulators.abstract_simulator import AbstractSimulator
-from util.utils import coord_to_pos, pos_to_coord
-from util.utils import ACTIONS
+from simulators.deep_sea_treasure.abstract_simulator import AbstractSimulator
 
 GAMMA = 0.99
 

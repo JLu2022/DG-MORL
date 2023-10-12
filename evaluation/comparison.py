@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
-expected_utility_list = np.load("expected_utility_list.npy", allow_pickle=True)
-expected_utility_list_gpi = np.load("mean_utility_gpi-ls.npy", allow_pickle=True)
-expected_utility_list_gpi_pd = np.load("mean_utility_gpi_pd.npy", allow_pickle=True)
+expected_utility_list = np.load("expected_u/DST/expected_utility_list.npy", allow_pickle=True)
+expected_utility_list_gpi = np.load("expected_u/DST/mean_utility_gpi-ls.npy", allow_pickle=True)
+expected_utility_list_gpi_pd = np.load("expected_u/DST/mean_utility_gpi_pd.npy", allow_pickle=True)
 # print(expected_utility_list_gpi)
 # print(expected_utility_list)
 print(len(expected_utility_list))

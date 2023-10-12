@@ -4,12 +4,17 @@ from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 from simulators.deep_sea_treasure.preference_space import PreferenceSpace
 import matplotlib.pyplot as plt
 
+exec(open('data_collection.py').read())
+print("Data_collection_finish.")
+print("Start Corner w recognition...")
+exec(open('policy_distinguish.py').read())
+print("Corner w recognition finish.")
 robustified_rewards = []
 agent_list = []
 trajs = []
 simulator = DeepSeaTreasure(img_repr=True)
-corner_weights = np.load("corner_weights.npy")
-pref_traj_score = np.load("pref_traj_score.npy", allow_pickle=True).item()
+corner_weights = np.load("files/corner_weights.npy")
+pref_traj_score = np.load("files/pref_traj_score.npy", allow_pickle=True).item()
 pref_traj_score = dict(pref_traj_score)
 # print(corner_weights)
 
@@ -98,4 +103,4 @@ extended_lists = np.array([np.pad(lst, (0, max_length - len(lst)), 'constant', c
 print(extended_lists)
 print(len(extended_lists))
 print(np.mean(extended_lists, axis=0))
-np.save("expected_utility_list.npy", extended_lists)
+np.save("../../evaluation/expected_u/DST/expected_utility_list.npy", extended_lists)

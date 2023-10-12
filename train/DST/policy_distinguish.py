@@ -21,7 +21,7 @@ cross = "---------------Policy starts-------------------"
 
 
 if __name__ == '__main__':
-    archive = np.load("../Algorithm/go_explore/archives/DST/archive.npy", allow_pickle=True).item()
+    archive = np.load("archives/archive.npy", allow_pickle=True).item()
     archive = dict(archive)
     pref_traj_score, pref_traj_rews, rew_vec_list, preference_list = find_best_traj(archive=archive)
     print(f"rew_vec_list:{rew_vec_list}")
@@ -53,7 +53,7 @@ if __name__ == '__main__':
         corner_weights.append(preference_list[idx])
     print(corner_weights)
 
-    np.save("corner_weights.npy",corner_weights)
+    np.save("files/corner_weights.npy", corner_weights)
     x_values = [point[0] for point in rew_vec_list]
     y_values = [point[1] for point in rew_vec_list]
     plt.scatter(x_values, y_values, color='b', marker='o',
