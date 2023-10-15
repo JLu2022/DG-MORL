@@ -47,6 +47,11 @@ def find_best_traj(archive):
     return pref_traj_score, pref_traj_rews, rew_vec_list, preference_list
 
 
+def show_archive(archive):
+    for k, v in archive.items():
+        print(f"pref weight vector:{k}\tv:{v}")
+
+
 if __name__ == '__main__':
     # archive = np.load("../Algorithm/go_explore/archives/archive.npy", allow_pickle=True).item()
     # archive = dict(archive)

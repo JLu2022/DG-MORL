@@ -13,6 +13,8 @@ import scipy.stats
 from gymnasium.spaces import Box, Discrete
 from gymnasium.utils import EzPickle
 from scipy.spatial import ConvexHull
+import keyboard
+from preference_space import PreferenceSpace
 
 EPS_SPEED = 0.001  # Minimum speed to be considered in motion
 HOME_X = 0.0
@@ -83,6 +85,7 @@ DECELERATION = 1
 
 CART_IMG = str(Path(__file__).parent.absolute()) + "/assets/cart.png"
 MINE_IMG = str(Path(__file__).parent.absolute()) + "/assets/mine.png"
+GAMMA = 0.98
 
 
 class Minecart(gym.Env, EzPickle):
@@ -579,6 +582,38 @@ class Minecart(gym.Env, EzPickle):
             self.render()
         return self.get_state(), {}
 
+    def reset_to_state(self, reset_to, seed=None):
+        super().reset(seed=seed)
+
+        if self.screen is None and self.image_observation:
+            self.render()  # init pygame
+
+        if self.image_observation:
+            self.render_pygame()
+
+        x_pos, y_pos, cart_speed, angle, ore1, ore2 = reset_to
+        self.cart.content = np.array([ore1, ore2])  # 重置库存
+        self.cart.pos = np.array([x_pos, y_pos])  # 重置位置
+        self.cart.speed = cart_speed  # 重置速度
+        self.cart.angle = angle  # 重置角度
+        # print(f"angle:{math.degrees(math.asin(sin_angle))}")
+        self.cart.departed = False  # 重置"出发":否
+        self.end = False  # 重置"结束":否
+        if self.render_mode == "human":
+            self.render()
+        return self.get_state(), {}
+
+    def calculate_utility(self, demo, pref_w):
+        self.reset()
+        rewards = np.zeros(3)
+        gamma = 1
+        for action in demo:
+            _, reward, _, _, _ = self.step(action=action)
+            rewards += gamma * reward
+            gamma *= GAMMA
+        utility = np.dot(rewards, pref_w)
+        return utility, rewards
+
     def __str__(self):
         string = f"Completed: {self.end} "
         string += f"Departed: {self.cart.departed} "
@@ -834,13 +869,77 @@ def pareto_filter(costs, minimize=True):
     return [costs[i] for i in is_efficient]
 
 
+def round_to(v, digits):
+    return int(v * 10 ** digits) / 10 ** digits
+
+
 if __name__ == "__main__":
     env = Minecart(render_mode="human", image_observation=True)
     terminated = False
-    env.reset()
-    while True:
-        env.render()
-        obs, r, terminated, truncated, info = env.step(env.action_space.sample())
-        # print(str(env))
-        if terminated:
-            env.reset()
+    rewards = np.zeros(3)
+    gamma = 1
+
+    key_states = {}
+    action_list = []
+    utility_dict = {}
+    pref_space = PreferenceSpace()
+    pref_list = pref_space.iterate()
+    for pref_w in pref_list:
+        utility_dict[tuple(pref_w)] = [-np.inf]
+        utility_dict[tuple(pref_w)].append("None Mode")
+        utility_dict[tuple(pref_w)].append(())
+    behaviour_modes = ["mean_agent", "ore_1_agent", "ore_2_agent","quick_ore_1_agent","quick_ore_2_agent","balance_agent","quick_balance_agent"]
+    utility = 0
+    for behaviour_mode in behaviour_modes:
+        env.reset()
+        print(f"MODE:{behaviour_mode}...start")
+        terminated = False
+        while not terminated:
+            event = keyboard.read_event()
+            if event.event_type == keyboard.KEY_DOWN:
+                if event.name not in key_states:
+                    if event.name == "up":
+                        action = 3
+                    elif event.name == "down":
+                        action = 4
+                    elif event.name == "left":
+                        action = 1
+                    elif event.name == "right":
+                        action = 2
+                    elif event.name == "m":
+                        action = 0
+                    elif event.name == "n":
+                        action = 5
+                env.render()
+                obs, r, terminated, truncated, info = env.step(action)
+                env.image_observation = False
+                X_pos, Y_pos, speed, sin_angle, cos_angle, content1, content2 = env.get_state()
+                rewards += r * gamma
+                gamma *= GAMMA
+                env.image_observation = True
+                print(f"X_pos:{round_to(X_pos, 2)}\t"
+                      f"Y_pos:{round_to(Y_pos, 2)}\t"
+                      f"speed:{round_to(speed, 2)}\t"
+                      f"sin_angle:{round_to(sin_angle, 2)}\t"
+                      f"cos_angle:{round_to(cos_angle, 2)}\t"
+                      f"content_1:{round_to(content1, 2)}\t"
+                      f"content_2:{round_to(content2, 2)}\n"
+                      f"Departure:{env.cart.departed}")
+                action_list.append(action)
+            elif event.event_type == keyboard.KEY_UP:
+                key_states.pop(event.name, None)
+
+        for pref_w in pref_list:
+            if np.dot(pref_w, rewards) > utility_dict[tuple(pref_w)][0]:
+                utility_dict[tuple(pref_w)][0] = np.dot(pref_w, rewards)
+                utility_dict[tuple(pref_w)][1] = behaviour_mode
+                utility_dict[tuple(pref_w)][2] = tuple(action_list)
+            # print(f"w:{pref_w}\tutility:{np.dot(pref_w, rewards)}")
+        # env.reset()
+    for k, v in utility_dict.items():
+        print(f"pref_w:{k}\tutility:{v[0]}\tbehaviour_mode:{v[1]}\taction_traj:{v[2]}")
+    # print(f"rewards:{rewards}")
+    # print(f"action_traj:{action_list}")
+    np.save(f"../../train/minecart/traj/human_traj_utility_dict.npy", utility_dict)
+    # np.save(f"../../train/minecart/traj/{behaviour_mode}_rewards.npy", rewards)
+    # np.save(f"../../train/minecart/traj/{behaviour_mode}.npy", action_list)

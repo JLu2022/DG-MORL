@@ -143,15 +143,12 @@ class DeepSeaTreasure(AbstractSimulator):
         self.img_map = [list(self.background_map[i]) for i in range(self.num_of_row)]
         rewards = np.zeros(2)
         rewards[0] = -1
-        shaping_reward = 0
         treasure_reward = 0
         d_shaping_reward = 0
         terminal = False
-        # print(f"r:{self.row}\tc:{self.col}")
         if d_goal:
             manhattan_goal = abs(self.row - d_goal[0][0]) + abs(self.col - d_goal[0][1])
         self.energy -= 1
-        # manhattan_dist = abs(self.row - 10) + abs(self.col - 9)
 
         if action == 0 and self.row > 0 and not self.background_map[self.row - 1][self.col] == 0:
             self.row = self.row - 1
@@ -166,9 +163,6 @@ class DeepSeaTreasure(AbstractSimulator):
             manhattan_goal_prime = abs(self.row - d_goal[1][0]) + abs(self.col - d_goal[1][1])
             d_shaping_reward = manhattan_goal - manhattan_goal_prime
 
-        # manhattan_dist_prime = abs(self.row - 10) + abs(self.col - 9)
-        # shaping_reward = manhattan_dist - 0.99*manhattan_dist_prime
-        # # rewards[1] = shaping_reward
         if not self.background_map[self.row][self.col] == 0 and not self.background_map[self.row][self.col] == -1:
             rewards[1] = self.background_map[self.row][self.col]
             treasure_reward = rewards[1]
@@ -184,35 +178,6 @@ class DeepSeaTreasure(AbstractSimulator):
 
         return rewards, image, terminal, position, d_shaping_reward, treasure_reward
         # return rewards, (image, (self.row, self.col)), terminal,shaping_reward
-
-    def relabel_d_shape(self, state, n_state, goal, n_goal, pref):
-        rewards = np.zeros(2)
-        rewards[0] = -1
-        row = state[0]
-        col = state[1]
-
-        n_row = n_state[0]
-        n_col = n_state[1]
-
-        g_row = goal[0]
-        g_col = goal[1]
-
-        n_g_row = n_goal[0]
-        n_g_col = n_goal[1]
-        # print(goal)
-        manhattan_goal = abs(row - g_row) + abs(col - g_col)
-        manhattan_goal_prime = abs(n_row - n_g_row) + abs(n_col - n_g_col)
-        # if n_row == self.goal_coord[0] and n_col == self.goal_coord[1]:
-        #     r_task = 1
-        # else:
-        #     r_task = -1
-        if not self.background_map[self.row][self.col] == 0 and not self.background_map[self.row][self.col] == -1:
-            rewards[1] = self.background_map[self.row][self.col]
-        # rewards/=124
-        r_task = np.dot(pref, rewards)
-        f_goal = manhattan_goal_prime - manhattan_goal
-        reward = r_task + f_goal
-        return reward
 
     def visualize(self):
         my_ticks_x = np.arange(0, self.num_of_col, 1)

@@ -5,7 +5,6 @@ from util.dataclass import CellInfo
 import numpy as np
 from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 from simulators.deep_sea_treasure.preference_space import PreferenceSpace
-from decimal import Decimal
 
 cross = "----------------------------------"
 GAMMA = 0.99
@@ -34,7 +33,7 @@ def calc_sample_prob(archive):
     for key in list(archive.keys()):
         cell = archive[key]
         nums_of_visit += cell.num_of_visit
-        probs.append(1 / (cell.num_of_visit))
+        probs.append(1 / cell.num_of_visit)
     probs = np.array(probs)
     probs = probs / np.sum(probs)
     return probs

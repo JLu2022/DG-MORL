@@ -33,8 +33,12 @@ class DeterministicArchive:
 
         else:  # new trajectory, update archive
             self.add_cell(utility_key, cell_key)
-            cell_info = CellInfo(cell_traj=cell_info.cell_traj, pos_traj=cell_info.pos_traj, num_of_visit=1,
-                                 score=cell_info.score, reward_vec=cell_info.reward_vec,terminal=cell_info.terminal)
+            cell_info = CellInfo(cell_traj=cell_info.cell_traj,
+                                 pos_traj=cell_info.pos_traj,
+                                 num_of_visit=1,
+                                 score=cell_info.score,
+                                 reward_vec=cell_info.reward_vec,
+                                 terminal=cell_info.terminal)
             self.archive[utility_key][cell_key] = cell_info
 
     def get_state(self):
