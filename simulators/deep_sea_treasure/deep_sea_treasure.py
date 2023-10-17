@@ -175,8 +175,8 @@ class DeepSeaTreasure(AbstractSimulator):
         image /= 255
         # position = self.row * self.num_of_col + self.col
         position = (self.row, self.col)
-
-        return rewards, image, terminal, position, d_shaping_reward, treasure_reward
+        return position, rewards, terminal, None, None
+        # return rewards, image, terminal, position, d_shaping_reward, treasure_reward
         # return rewards, (image, (self.row, self.col)), terminal,shaping_reward
 
     def visualize(self):
@@ -270,7 +270,7 @@ class DeepSeaTreasure(AbstractSimulator):
         gamma = 1
         value_vec = np.zeros(2)
         for action in action_demo:
-            rewards, _, terminal, _, _, _ = self.step(action=action)
+            position, rewards, terminal, _, _ = self.step(action=action)
             value_vec += rewards * gamma
             gamma *= GAMMA
         value_scalar = np.dot(value_vec, pref_w)
@@ -341,7 +341,7 @@ if __name__ == '__main__':
         treasure_w = round((100 - i) / 100, 2)
         utility_list = []
         for traj in trajs:
-            utility = dst_env.calculate_utility(demo=traj[1:], pref_w=np.array([1 - treasure_w, treasure_w]))
+            utility,_ = dst_env.calculate_utility(demo=traj[1:], pref_w=np.array([1 - treasure_w, treasure_w]))
             utility_list.append(utility)
         sum_utility += max(utility_list)
         idx = np.argmax(utility_list)

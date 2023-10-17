@@ -1,13 +1,86 @@
 """Linear Support implementation."""
 import random
 from copy import deepcopy
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import cdd
 import cvxpy as cp
 import numpy as np
 from cvxpy import SolverError
 from gymnasium.core import Env
+
+
+def eval_mo(
+        agent,
+        env,
+        w: Optional[np.ndarray] = None,
+        scalarization=np.dot,
+        render: bool = False,
+) -> Tuple[float, float, np.ndarray, np.ndarray]:
+    """Evaluates one episode of the agent in the environment.
+
+    Args:
+        agent: Agent
+        env: MO-Gymnasium environment with LinearReward wrapper
+        scalarization: scalarization function, taking weights and reward as parameters
+        w (np.ndarray): Weight vector
+        render (bool, optional): Whether to render the environment. Defaults to False.
+
+    Returns:
+        (float, float, np.ndarray, np.ndarray): Scalarized return, scalarized discounted return, vectorized return, vectorized discounted return
+    """
+    obs, _ = env.reset()
+    done = False
+    vec_return, disc_vec_return = np.zeros_like(w), np.zeros_like(w)
+    gamma = 1.0
+    while not done:
+        if render:
+            env.render()
+        obs, r, terminated, truncated, info = env.step(agent.eval(obs, w))
+        done = terminated or truncated
+        vec_return += r
+        disc_vec_return += gamma * r
+        gamma *= agent.gamma
+
+    if w is None:
+        scalarized_return = scalarization(vec_return)
+        scalarized_discounted_return = scalarization(disc_vec_return)
+    else:
+        scalarized_return = scalarization(w, vec_return)
+        scalarized_discounted_return = scalarization(w, disc_vec_return)
+
+    return (
+        scalarized_return,
+        scalarized_discounted_return,
+        vec_return,
+        disc_vec_return,
+    )
+
+
+def policy_evaluation_mo(agent, env, w: np.ndarray, rep: int = 5) -> Tuple[float, float, np.ndarray, np.ndarray]:
+    """Evaluates the value of a policy by running the policy for multiple episodes. Returns the average returns.
+
+    Args:
+        agent: Agent
+        env: MO-Gymnasium environment
+        w (np.ndarray): Weight vector
+        rep (int, optional): Number of episodes for averaging. Defaults to 5.
+
+    Returns:
+        (float, float, np.ndarray, np.ndarray): Avg scalarized return, Avg scalarized discounted return, Avg vectorized return, Avg vectorized discounted return
+    """
+    evals = [eval_mo(agent, env, w) for _ in range(rep)]
+    avg_scalarized_return = np.mean([eval[0] for eval in evals])
+    avg_scalarized_discounted_return = np.mean([eval[1] for eval in evals])
+    avg_vec_return = np.mean([eval[2] for eval in evals], axis=0)
+    avg_disc_vec_return = np.mean([eval[3] for eval in evals], axis=0)
+
+    return (
+        avg_scalarized_return,
+        avg_scalarized_discounted_return,
+        avg_vec_return,
+        avg_disc_vec_return,
+    )
 
 
 def random_weights(
@@ -85,7 +158,8 @@ class LinearSupport:
         for w in extrema_weights(self.num_objectives):
             self.queue.append((float("inf"), w))
 
-    def next_weight(self, algo: str = "ols") -> np.ndarray:
+    def next_weight(self, algo: str = "ols", gpi_agent=None, env=None, rep_eval=1
+                    ):
         """Returns the next weight vector with highest priority.
         Args:
             algo (str): Algorithm to use. Either 'ols' or 'gpi-ls'.
@@ -99,8 +173,15 @@ class LinearSupport:
 
             self.queue = []
             for wc in W_corner:
-                priority = self.ols_priority(wc)
+                if algo == "ols":
+                    priority = self.ols_priority(wc)
                 # print(f"wc:{wc}\tpriority:{priority}")
+                elif algo == "gpi-ls":
+                    if gpi_agent is None:
+                        raise ValueError("GPI-LS requires passing a GPI agent.")
+                    gpi_expanded_set = [policy_evaluation_mo(gpi_agent, env, wc, rep=rep_eval)[3] for wc in W_corner]
+                    priority = self.gpi_ls_priority(wc, gpi_expanded_set)
+
                 if self.epsilon is None or priority >= self.epsilon:
                     # OLS does not try the same weight vector twice
                     if not (algo == "ols" and any([np.allclose(wc, wv) for wv in self.visited_weights])):
@@ -194,6 +275,29 @@ class LinearSupport:
         max_value_ccs = self.max_scalarized_value(w)
         max_optimistic_value = self.max_value_lp(w)
         priority = max_optimistic_value - max_value_ccs
+        return priority
+
+    def gpi_ls_priority(self, w: np.ndarray, gpi_expanded_set: List[np.ndarray]) -> float:
+        """Get the priority of a weight vector for GPI-LS.
+        Args:
+            w: Weight vector
+
+        Returns:
+            Priority of the weight vector.
+        """
+
+        def best_vector(values, w):
+            max_v = values[0]
+            for i in range(1, len(values)):
+                if values[i] @ w > max_v @ w:
+                    max_v = values[i]
+            return max_v
+
+        max_value_ccs = self.max_scalarized_value(w)
+        max_value_gpi = best_vector(gpi_expanded_set, w)
+        max_value_gpi = np.dot(max_value_gpi, w)
+        priority = max_value_gpi - max_value_ccs
+
         return priority
 
     def max_scalarized_value(self, w: np.ndarray) -> Optional[float]:
@@ -427,5 +531,5 @@ if __name__ == "__main__":
     for s in sorted_vectors:
         print(f"solution:{s}")
     for w in weight_support:
-        print(f"w:{np.round_(w,3)}")
+        print(f"w:{np.round_(w, 3)}")
     # print(ols.ccs)
