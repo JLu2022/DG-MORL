@@ -1,0 +1,22 @@
+{'env_id': 'deep-sea-treasure-v0', 'learning_rate': 0.0003, 'initial_epsilon': 0.01, 'epsilon_decay_steps:': None, 'batch_size': 128, 'per': True, 'gpi_pd': False, 'alpha_per': 0.6, 'min_priority': 0.01, 'tau': 1.0, 'num_nets': 2, 'clip_grand_norm': None, 'target_net_update_freq': 1000, 'gamma': 0.99, 'net_arch': [256, 256, 256, 256], 'dynamics_model_arch': [256, 256, 256], 'gradient_updates': 20, 'buffer_size': 1000000, 'learning_starts': 100, 'dyna': False, 'dynamics_rollout_len': 1, 'dynamics_uncertainty_threshold': 1.5, 'dynamics_rollout_starts': 5000, 'dynamics_rollout_freq': 250, 'dynamics_rollout_batch_size': 25000, 'dynamics_buffer_size': 100000, 'dynamics_normalize_inputs': False, 'dynamics_ensemble_size': 5, 'dynamics_num_elites': 2, 'real_ratio': 0.5, 'drop_rate': 0.01, 'layer_norm': True, 'seed': 42}
+Training starts... Let's roll!
+gpi_pd:False
+{(0.6860699653625488, -2.970099985599518): [2, 2, 1], (7.876887321472168, -4.9009950160980225): [2, 2, 3, 1, 1], (10.827021598815918, -6.793465197086334): [2, 2, 3, 3, 1, 1, 1], (12.918425559997559, -8.648275256156921): [2, 2, 3, 3, 3, 1, 1, 1, 1], (13.794110298156738, -9.561792492866516): [2, 2, 3, 3, 3, 3, 1, 1, 1, 1], (14.560551643371582, -10.4661745429039): [2, 2, 3, 3, 3, 3, 3, 1, 1, 1, 1], (17.02741813659668, -13.99416446685791): [2, 2, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1], (17.459184646606445, -14.85422283411026): [2, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1], (18.69310760498047, -17.383137583732605): [2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1], (19.3843936920166, -19.027213096618652): [2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
+W_corner: [array([1., 0.]), array([0.39080246, 0.60919754]), array([0.51056338, 0.48943662]), array([0.58851004, 0.41148996]), array([0.70399075, 0.29600925]), array([0.6720793, 0.3279207]), array([0.66573773, 0.33426227]), array([0.54126519, 0.45873481]), array([0.47002179, 0.52997821]), array([0.21168203, 0.78831797]), array([0., 1.])] W_corner size: 11
+CCS: [array([ 0.68606997, -2.97009999]), array([ 7.87688732, -4.90099502]), array([10.8270216, -6.7934652]), array([12.91842556, -8.64827526]), array([13.7941103 , -9.56179249]), array([ 14.56055164, -10.46617454]), array([ 17.02741814, -13.99416447]), array([ 17.45918465, -14.85422283]), array([ 18.6931076 , -17.38313758]), array([ 19.38439369, -19.0272131 ])] CCS size: 10
+Next weight: [1. 0.]
+Next weight vector: [1. 0.]
+change_w_every_episode:True
+w:[1. 0.]		closest_demo_support:[1. 0.]	closest_index:10
+Traceback (most recent call last):
+  File "C:\Users\19233436\PycharmProjects\MOGE\launch_experiment.py", line 207, in <module>
+    main()
+  File "C:\Users\19233436\PycharmProjects\MOGE\launch_experiment.py", line 197, in main
+    algo.train(
+  File "C:\Users\19233436\PycharmProjects\MOGE\Algorithm\gpi_ls.py", line 892, in train
+    self.train_iteration(
+  File "C:\Users\19233436\PycharmProjects\MOGE\Algorithm\gpi_ls.py", line 734, in train_iteration
+    guide_policy, rew_vec = self.find_best_traj_w(w=weight, trajs=rew_vec_demo, demo_support_weights=demo_support_weights)
+  File "C:\Users\19233436\PycharmProjects\MOGE\Algorithm\gpi_ls.py", line 807, in find_best_traj_w
+    print(f"closest_demo:{list(trajs.values())[closest_index]}\tclosest_vec:{list(trajs.keys())[closest_index]}")
+IndexError: list index out of range

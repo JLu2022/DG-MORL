@@ -8,6 +8,9 @@ import cvxpy as cp
 import numpy as np
 from cvxpy import SolverError
 from gymnasium.core import Env
+from Algorithm.common.weights import equally_spaced_weights
+from Algorithm.common.evaluation import eval_mo_demo
+import mo_gymnasium as mo_gym
 
 
 def eval_mo(
@@ -155,8 +158,30 @@ class LinearSupport:
         self.iteration = 0
         self.verbose = verbose
         self.policies = []
+        # self.demo_support_weights = []
         for w in extrema_weights(self.num_objectives):
             self.queue.append((float("inf"), w))
+
+    def get_support_weight_from_demo(self, demos, env):
+        rews_demo_dict = {}
+        for i in range(len(demos)):
+            rews_demo_dict[i] = {"rew_vec": np.zeros(2), "demo": [], "demo_horizon": 0}
+            _, discounted_return, _, disc_vec_return = eval_mo_demo(demo=demos[i],
+                                                                    env=env,
+                                                                    w=np.array([1, 0], dtype=float))
+            rews_demo_dict[i]["rew_vec"] = disc_vec_return
+            rews_demo_dict[i]["demo"] = demos[i]
+            rews_demo_dict[i]["demo_horizon"] = len(demos[i])
+            # self.ccs.append(disc_vec_return)
+        # corners = self.compute_corner_weights()
+        # for w in corners:
+        #     self.weight_support.append(w)
+        # demo_support_weights = sorted(corners, key=lambda x: x[0])
+        # print(f"from {len(demos)} demos, find {len(corners)} corner weights")
+        # for w in demo_support_weights:
+        #     print(f"w:{np.round_(w, 3)}")
+        corners = None
+        return corners, rews_demo_dict, None
 
     def next_weight(self, algo: str = "ols", gpi_agent=None, env=None, rep_eval=1
                     ):
@@ -190,7 +215,7 @@ class LinearSupport:
             if len(self.queue) > 0:
                 # Sort in descending order of priority
                 self.queue.sort(key=lambda t: t[0], reverse=True)
-                # If all priorities are 0, shuffle the queue to avoid repearting weights every iteration
+                # If all priorities are 0, shuffle the queue to avoid repeating weights every iteration
                 if self.queue[0][0] == 0.0:
                     random.shuffle(self.queue)
 
@@ -523,13 +548,17 @@ if __name__ == "__main__":
         # return np.array(list(map(float, input().split())), dtype=np.float32)
 
 
+    action_demos = [action_demo_1, action_demo_2, action_demo_3, action_demo_4, action_demo_5, action_demo_6,
+                    action_demo_7, action_demo_8, action_demo_9, action_demo_10]
+    eval_env = mo_gym.make("deep-sea-treasure-v0")
     num_objectives = 2
     ols = LinearSupport(num_objectives=num_objectives, epsilon=0.0001, verbose=True)
-    ols.train(total_timesteps=1000, timesteps_per_iteration=10)
-    sorted_vectors = sorted(ols.ccs, key=lambda x: x[1])
-    weight_support = sorted(ols.weight_support, key=lambda x: x[1])
-    for s in sorted_vectors:
-        print(f"solution:{s}")
-    for w in weight_support:
-        print(f"w:{np.round_(w, 3)}")
-    # print(ols.ccs)
+    c = ols.get_support_weight_from_demo(demos=action_demos, env=eval_env)
+    # ols.train(total_timesteps=1000, timesteps_per_iteration=10)
+    # sorted_vectors = sorted(ols.ccs, key=lambda x: x[1])
+    # weight_support = sorted(ols.weight_support, key=lambda x: x[1])
+    # for s in sorted_vectors:
+    #     print(f"solution:{s}")
+    # for w in weight_support:
+    #     print(f"w:{np.round_(w, 3)}")
+    # # print(ols.ccs)

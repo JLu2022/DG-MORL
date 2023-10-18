@@ -1,0 +1,164 @@
+diff --git a/Algorithm/common/weights.py b/Algorithm/common/weights.py
+index 16bc67e..e241ea7 100644
+--- a/Algorithm/common/weights.py
++++ b/Algorithm/common/weights.py
+@@ -56,3 +56,7 @@ def extrema_weights(dim: int) -> List[np.ndarray]:
+         dim: size of the weight vector
+     """
+     return list(np.eye(dim, dtype=np.float32))
++
++if __name__ == '__main__':
++    print(equally_spaced_weights(dim=2,n=101))
++    print(extrema_weights(dim=2))
+\ No newline at end of file
+diff --git a/Algorithm/go_explore/__pycache__/explore.cpython-311.pyc b/Algorithm/go_explore/__pycache__/explore.cpython-311.pyc
+deleted file mode 100644
+index b240f8a..0000000
+Binary files a/Algorithm/go_explore/__pycache__/explore.cpython-311.pyc and /dev/null differ
+diff --git a/Algorithm/go_explore/__pycache__/explore.cpython-39.pyc b/Algorithm/go_explore/__pycache__/explore.cpython-39.pyc
+deleted file mode 100644
+index 2aeb37a..0000000
+Binary files a/Algorithm/go_explore/__pycache__/explore.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/gpi_ls.py b/Algorithm/gpi_ls.py
+index a67b79f..dab2542 100644
+--- a/Algorithm/gpi_ls.py
++++ b/Algorithm/gpi_ls.py
+@@ -489,7 +489,7 @@ class GPIPD(MOPolicy, MOAgent):
+                 if self.per:
+                     td_errors.append(td_error.abs())
+             critic_loss = (1 / self.num_nets) * sum(losses)
+-
++            print(f"critic_loss:{critic_loss}")
+             self.q_optim.zero_grad()
+             critic_loss.backward()
+             if self.log and self.global_step % 100 == 0:
+@@ -576,6 +576,7 @@ class GPIPD(MOPolicy, MOAgent):
+         action = a[policy_index].detach().item()
+ 
+         if return_policy_index:
++            # print(f"scalar_q_values:{scalar_q_values}\taction:{action}\tpolicy_index:{policy_index}")
+             return action, policy_index.item()
+         return action
+ 
+@@ -656,7 +657,7 @@ class GPIPD(MOPolicy, MOAgent):
+                 for target_net in self.target_q_nets
+             ]
+         )
+-
++        print(f"next_q_target:{next_q_target}")
+         q_values = th.einsum("br,nbpar->nbpa", w, next_q_target)
+         min_inds = th.argmin(q_values, dim=0)
+         min_inds = min_inds.reshape(1, next_q_target.size(1), next_q_target.size(2), next_q_target.size(3), 1).expand(
+@@ -795,6 +796,8 @@ class GPIPD(MOPolicy, MOAgent):
+             timesteps_per_iter (int): Number of timesteps to train for per iteration.
+             weight_selection_algo (str): Weight selection algorithm to use.
+         """
++        print(f"gpi_pd:{self.gpi_pd}")
++        # print(f"self.per:{self.per}")
+         if self.log:
+             self.register_additional_config({"ref_point": ref_point.tolist(), "known_front": known_pareto_front})
+         max_iter = total_timesteps // timesteps_per_iter
+diff --git a/Algorithm/rl_algorithm/PPO/__pycache__/buffer.cpython-39.pyc b/Algorithm/rl_algorithm/PPO/__pycache__/buffer.cpython-39.pyc
+deleted file mode 100644
+index 83b39ac..0000000
+Binary files a/Algorithm/rl_algorithm/PPO/__pycache__/buffer.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/PPO/__pycache__/distributions.cpython-39.pyc b/Algorithm/rl_algorithm/PPO/__pycache__/distributions.cpython-39.pyc
+deleted file mode 100644
+index 50d43b1..0000000
+Binary files a/Algorithm/rl_algorithm/PPO/__pycache__/distributions.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/PPO/__pycache__/ppo.cpython-39.pyc b/Algorithm/rl_algorithm/PPO/__pycache__/ppo.cpython-39.pyc
+deleted file mode 100644
+index 58397c6..0000000
+Binary files a/Algorithm/rl_algorithm/PPO/__pycache__/ppo.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/__pycache__/D_shape_tabular_Q.cpython-39.pyc b/Algorithm/rl_algorithm/__pycache__/D_shape_tabular_Q.cpython-39.pyc
+deleted file mode 100644
+index 9c74864..0000000
+Binary files a/Algorithm/rl_algorithm/__pycache__/D_shape_tabular_Q.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/__pycache__/D_shaped_DQN.cpython-39.pyc b/Algorithm/rl_algorithm/__pycache__/D_shaped_DQN.cpython-39.pyc
+deleted file mode 100644
+index 1e71f38..0000000
+Binary files a/Algorithm/rl_algorithm/__pycache__/D_shaped_DQN.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-311.pyc b/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-311.pyc
+deleted file mode 100644
+index 69b059e..0000000
+Binary files a/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-311.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-39.pyc b/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-39.pyc
+deleted file mode 100644
+index 229ee3e..0000000
+Binary files a/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-39.pyc and /dev/null differ
+diff --git a/simulators/__pycache__/abstract_simulator.cpython-311.pyc b/simulators/__pycache__/abstract_simulator.cpython-311.pyc
+deleted file mode 100644
+index de86957..0000000
+Binary files a/simulators/__pycache__/abstract_simulator.cpython-311.pyc and /dev/null differ
+diff --git a/simulators/__pycache__/abstract_simulator.cpython-39.pyc b/simulators/__pycache__/abstract_simulator.cpython-39.pyc
+deleted file mode 100644
+index 03ce43f..0000000
+Binary files a/simulators/__pycache__/abstract_simulator.cpython-39.pyc and /dev/null differ
+diff --git a/simulators/__pycache__/discrete_grid_world.cpython-39.pyc b/simulators/__pycache__/discrete_grid_world.cpython-39.pyc
+deleted file mode 100644
+index 4f1a760..0000000
+Binary files a/simulators/__pycache__/discrete_grid_world.cpython-39.pyc and /dev/null differ
+diff --git a/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-311.pyc b/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-311.pyc
+index 4ff1f78..b798eef 100644
+Binary files a/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-311.pyc and b/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-311.pyc differ
+diff --git a/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-39.pyc b/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-39.pyc
+index d472bc9..3b1d9b6 100644
+Binary files a/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-39.pyc and b/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-39.pyc differ
+diff --git a/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-311.pyc b/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-311.pyc
+index 98480bc..8d583f0 100644
+Binary files a/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-311.pyc and b/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-311.pyc differ
+diff --git a/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-39.pyc b/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-39.pyc
+index 18b5d1a..0558383 100644
+Binary files a/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-39.pyc and b/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-39.pyc differ
+diff --git a/simulators/deep_sea_treasure/deep_sea_treasure.py b/simulators/deep_sea_treasure/deep_sea_treasure.py
+index b3a3efc..83ad1b7 100644
+--- a/simulators/deep_sea_treasure/deep_sea_treasure.py
++++ b/simulators/deep_sea_treasure/deep_sea_treasure.py
+@@ -1,8 +1,7 @@
+ import random
+-
+-import matplotlib.pyplot as plt
+ import numpy as np
+ from simulators.deep_sea_treasure.abstract_simulator import AbstractSimulator
++import matplotlib.pyplot as plt
+ 
+ GAMMA = 0.99
+ 
+@@ -336,15 +335,24 @@ if __name__ == '__main__':
+     treasure_w = 0.0
+     sum_utility = 0
+     # pref_list = [1, 0.7, 0.67, 0.66, 0.58, 0.54, 0.51, 0.47, 0.39, 0.21]
++    return_list = []
++    treasure_ws = []
+     for i in range(101):
+         # for treasure_w in pref_list:
+         treasure_w = round((100 - i) / 100, 2)
+         utility_list = []
+         for traj in trajs:
+-            utility,_ = dst_env.calculate_utility(demo=traj[1:], pref_w=np.array([1 - treasure_w, treasure_w]))
++            utility, _ = dst_env.calculate_utility(demo=traj[1:], pref_w=np.array([1 - treasure_w, treasure_w]))
+             utility_list.append(utility)
+         sum_utility += max(utility_list)
+         idx = np.argmax(utility_list)
+         print(f"pref:{[1 - treasure_w, treasure_w]}\tmax_utility:{max(utility_list)}\tpos:{10 - idx}")
++        return_list.append(max(utility_list))
++        treasure_ws.append(treasure_w)
++    print(f"return_list:{return_list}\ttreasure_ws:{treasure_ws}")
++    return_list = return_list[::-1]
++    treasure_ws = treasure_ws[::-1]
+     print(f"avg utility:{sum_utility / 101}")
+     dst_env.state_traj_to_actions(traj_to_4_5)
++    plt.plot(treasure_ws, return_list, color="red")
++    plt.show()
+diff --git a/util/__pycache__/archives.cpython-39.pyc b/util/__pycache__/archives.cpython-39.pyc
+index 1889210..722a094 100644
+Binary files a/util/__pycache__/archives.cpython-39.pyc and b/util/__pycache__/archives.cpython-39.pyc differ
+diff --git a/util/__pycache__/dataclass.cpython-39.pyc b/util/__pycache__/dataclass.cpython-39.pyc
+index f714feb..6f29722 100644
+Binary files a/util/__pycache__/dataclass.cpython-39.pyc and b/util/__pycache__/dataclass.cpython-39.pyc differ
+diff --git a/util/__pycache__/utils.cpython-311.pyc b/util/__pycache__/utils.cpython-311.pyc
+index 905e82b..ee45603 100644
+Binary files a/util/__pycache__/utils.cpython-311.pyc and b/util/__pycache__/utils.cpython-311.pyc differ
+diff --git a/util/__pycache__/utils.cpython-39.pyc b/util/__pycache__/utils.cpython-39.pyc
+index 1c309b1..cd496cc 100644
+Binary files a/util/__pycache__/utils.cpython-39.pyc and b/util/__pycache__/utils.cpython-39.pyc differ

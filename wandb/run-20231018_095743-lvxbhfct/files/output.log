@@ -1,0 +1,406 @@
+{'env_id': 'deep-sea-treasure-v0', 'learning_rate': 0.0003, 'initial_epsilon': 0.01, 'epsilon_decay_steps:': None, 'batch_size': 128, 'per': True, 'gpi_pd': True, 'alpha_per': 0.6, 'min_priority': 0.01, 'tau': 1.0, 'num_nets': 2, 'clip_grand_norm': None, 'target_net_update_freq': 1000, 'gamma': 0.99, 'net_arch': [256, 256, 256, 256], 'dynamics_model_arch': [256, 256, 256], 'gradient_updates': 20, 'buffer_size': 1000000, 'learning_starts': 100, 'dyna': True, 'dynamics_rollout_len': 1, 'dynamics_uncertainty_threshold': 1.5, 'dynamics_rollout_starts': 5000, 'dynamics_rollout_freq': 250, 'dynamics_rollout_batch_size': 25000, 'dynamics_buffer_size': 100000, 'dynamics_normalize_inputs': False, 'dynamics_ensemble_size': 5, 'dynamics_num_elites': 2, 'real_ratio': 0.5, 'drop_rate': 0.01, 'layer_norm': True, 'seed': 42}
+Training starts... Let's roll!
+gpi_pd:True
+CCS: [] CCS size: 0
+Next weight: [1. 0.]
+Next weight vector: [1. 0.]
+Episode infos:
+Steps: 2, Time: 0.00027799999224953353
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6860699653625488
+Episode infos:
+Steps: 20, Time: 0.0018710000440478325
+Total Reward: [  8.2 -20. ], Discounted: [  6.7068367 -18.027212 ]
+Scalarized Reward: -20.0, Discounted: -18.027212142944336
+Episode infos:
+Steps: 6, Time: 0.0012229999992996454
+Total Reward: [11.5 -6. ], Discounted: [10.827022 -5.793465]
+Scalarized Reward: -6.0, Discounted: -5.7934651374816895
+Episode infos:
+Steps: 2, Time: 0.0008290000259876251
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6860699653625488
+Episode infos:
+Steps: 10, Time: 0.0012339999666437507
+Total Reward: [  0.7 -10. ], Discounted: [ 0.6330674 -9.466174 ]
+Scalarized Reward: -10.0, Discounted: -9.466174125671387
+Episode infos:
+Steps: 2, Time: 0.0007980000227689743
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 1, Time: 0.0007379999733529985
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 35, Time: 0.002302000066265464
+Total Reward: [ 14. -35.], Discounted: [  9.848268 -29.358675]
+Scalarized Reward: -35.0, Discounted: -29.358675003051758
+Episode infos:
+Steps: 3, Time: 0.0008660000166855752
+Total Reward: [ 0.7 -3. ], Discounted: [ 0.6792093 -2.940399 ]
+Scalarized Reward: -3.0, Discounted: -2.940398931503296
+Episode infos:
+Steps: 3, Time: 0.0008609999786131084
+Total Reward: [ 0.7 -3. ], Discounted: [ 0.6792093 -2.940399 ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.679209291934967
+Episode infos:
+Steps: 5, Time: 0.0009730000165291131
+Total Reward: [ 0.7 -5. ], Discounted: [ 0.66569304 -4.851985  ]
+Scalarized Reward: -5.0, Discounted: -4.851984977722168
+Episode infos:
+Steps: 1, Time: 0.0007699999841861427
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 5, Time: 0.0009360000258311629
+Total Reward: [ 8.2 -5. ], Discounted: [ 7.798118 -4.851985]
+Scalarized Reward: -5.0, Discounted: -4.851984977722168
+Episode infos:
+Steps: 2, Time: 0.0008159999852068722
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 7, Time: 0.7985879778862
+Total Reward: [ 0.7 -7. ], Discounted: [ 0.65244573 -6.7255306 ]
+Scalarized Reward: -7.0, Discounted: -6.725530624389648
+Episode infos:
+Steps: 1, Time: 0.001433999976143241
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 1, Time: 0.001398000051267445
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 1, Time: 0.0014070000033825636
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0014009999576956034
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 3, Time: 0.013585000298917294
+Total Reward: [ 0.7 -3. ], Discounted: [ 0.6792093 -2.940399 ]
+Scalarized Reward: -3.0, Discounted: -2.940398931503296
+Episode infos:
+Steps: 4, Time: 0.11968199908733368
+Total Reward: [ 0.7 -4. ], Discounted: [ 0.6724172 -3.900995 ]
+Scalarized Reward: -4.0, Discounted: -3.9009950160980225
+Episode infos:
+Steps: 1, Time: 0.0017529999604448676
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.001471000025048852
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 5, Time: 0.02609499916434288
+Total Reward: [ 0.7 -5. ], Discounted: [ 0.66569304 -4.851985  ]
+Scalarized Reward: -5.0, Discounted: -4.851984977722168
+Episode infos:
+Steps: 1, Time: 0.0017219999572262168
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0016769999638199806
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 1, Time: 0.0018220000201836228
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0017689999658614397
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 1, Time: 0.0016169999726116657
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 16, Time: 0.09620799869298935
+Total Reward: [  0.7 -16. ], Discounted: [  0.5960204 -14.70568  ]
+Scalarized Reward: -16.0, Discounted: -14.705679893493652
+Episode infos:
+Steps: 5, Time: 0.022348999977111816
+Total Reward: [ 0.7 -5. ], Discounted: [ 0.66569304 -4.851985  ]
+Scalarized Reward: -5.0, Discounted: -4.851984977722168
+Episode infos:
+Steps: 1, Time: 0.001395000028423965
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 2, Time: 0.006006000097841024
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 1, Time: 0.001353000057861209
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0013490000274032354
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0013180000241845846
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0013699999544769526
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0017219999572262168
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.001888000057078898
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 2, Time: 0.008051999844610691
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 1, Time: 0.0016700000269338489
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0015569999814033508
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0019399999873712659
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.001643999945372343
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 2, Time: 0.008062999695539474
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 1, Time: 0.0019150000298395753
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0017529999604448676
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0015259999781847
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 2, Time: 0.008453999646008015
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 2, Time: 0.007337000221014023
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 1, Time: 0.0014519999967887998
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0013360000448301435
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 1, Time: 0.0013899999903514981
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0012929999502375722
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 2, Time: 0.006513999775052071
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 3, Time: 0.011366000398993492
+Total Reward: [ 0.7 -3. ], Discounted: [ 0.6792093 -2.940399 ]
+Scalarized Reward: -3.0, Discounted: -2.940398931503296
+Episode infos:
+Steps: 1, Time: 0.001353000057861209
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0013879999751225114
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 3, Time: 0.012455999851226807
+Total Reward: [ 0.7 -3. ], Discounted: [ 0.6792093 -2.940399 ]
+Scalarized Reward: -3.0, Discounted: -2.940398931503296
+Episode infos:
+Steps: 1, Time: 0.0016550000291317701
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0015369999455288053
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0014509999891743064
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 7, Time: 0.03888799995183945
+Total Reward: [ 0.7 -7. ], Discounted: [ 0.65244573 -6.7255306 ]
+Scalarized Reward: -7.0, Discounted: -6.725530624389648
+Episode infos:
+Steps: 1, Time: 0.0017340000486001372
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0017379999626427889
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0017160000279545784
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.00171999994199723
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 4, Time: 0.020920999348163605
+Total Reward: [ 0.7 -4. ], Discounted: [ 0.6724172 -3.900995 ]
+Scalarized Reward: -4.0, Discounted: -3.9009950160980225
+Episode infos:
+Steps: 1, Time: 0.0015579999890178442
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 5, Time: 0.026272999122738838
+Total Reward: [ 0.7 -5. ], Discounted: [ 0.66569304 -4.851985  ]
+Scalarized Reward: -5.0, Discounted: -4.851984977722168
+Episode infos:
+Steps: 1, Time: 0.001534000039100647
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 1, Time: 0.0014329999685287476
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 11, Time: 0.05690399929881096
+Total Reward: [  0.7 -11. ], Discounted: [  0.62673676 -10.361512  ]
+Scalarized Reward: -11.0, Discounted: -10.361512184143066
+Episode infos:
+Steps: 1, Time: 0.0015999999595806003
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 4, Time: 0.02187100052833557
+Total Reward: [ 0.7 -4. ], Discounted: [ 0.6724172 -3.900995 ]
+Scalarized Reward: -4.0, Discounted: -3.9009950160980225
+Episode infos:
+Steps: 2, Time: 0.008772999979555607
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 1, Time: 0.001820000004954636
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 7, Time: 0.04357900097966194
+Total Reward: [ 0.7 -7. ], Discounted: [ 0.65244573 -6.7255306 ]
+Scalarized Reward: -7.0, Discounted: -6.725530624389648
+Episode infos:
+Steps: 1, Time: 0.0017320000333711505
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.002082000020891428
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.001572999986819923
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0015940000303089619
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 2, Time: 0.0077309999614953995
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 1, Time: 0.0016550000291317701
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0014700000174343586
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 1, Time: 0.001547000021673739
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0014049999881535769
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Epoch: 42 Holdout losses: 1.3307, 1.2543, 1.2987, 1.2875, 1.3834
+Episode infos:
+Steps: 2, Time: 0.007619999814778566
+Total Reward: [ 0.7 -2. ], Discounted: [ 0.68606997 -1.9701    ]
+Scalarized Reward: -2.0, Discounted: -1.9701000452041626
+Episode infos:
+Steps: 1, Time: 0.0015239999629557133
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.001496999990195036
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 4, Time: 0.018479999154806137
+Total Reward: [ 0.7 -4. ], Discounted: [ 0.6724172 -3.900995 ]
+Scalarized Reward: -4.0, Discounted: -3.9009950160980225
+Episode infos:
+Steps: 1, Time: 0.0014329999685287476
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 8, Time: 0.03905000165104866
+Total Reward: [ 0.7 -8. ], Discounted: [ 0.6459213 -7.6482754]
+Scalarized Reward: -8.0, Discounted: -7.648275375366211
+Episode infos:
+Steps: 1, Time: 0.0016299999551847577
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 3, Time: 0.013532999902963638
+Total Reward: [ 0.7 -3. ], Discounted: [ 0.6792093 -2.940399 ]
+Scalarized Reward: -3.0, Discounted: -2.940398931503296
+Episode infos:
+Steps: 1, Time: 0.0016370000084862113
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: -1.0, Discounted: -0.9900000095367432
+Episode infos:
+Steps: 1, Time: 0.0014019999653100967
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0014130000490695238
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 1, Time: 0.0014100000262260437
+Total Reward: [ 0.7 -1. ], Discounted: [ 0.69299996 -0.99      ]
+Scalarized Reward: 0.699999988079071, Discounted: 0.6929999589920044
+Episode infos:
+Steps: 3, Time: 0.012455999851226807
+Total Reward: [ 0.7 -3. ], Discounted: [ 0.6792093 -2.940399 ]

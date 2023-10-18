@@ -1,8 +1,7 @@
 import random
-
-import matplotlib.pyplot as plt
 import numpy as np
 from simulators.deep_sea_treasure.abstract_simulator import AbstractSimulator
+import matplotlib.pyplot as plt
 
 GAMMA = 0.99
 
@@ -313,38 +312,44 @@ class DeepSeaTreasure(AbstractSimulator):
 if __name__ == '__main__':
     dst_env = DeepSeaTreasure(visualization=True)
     dst_env.reset(put_submarine=False)
-    traj_to_10_9 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
-                    (1, 9), (2, 9), (3, 9), (4, 9), (5, 9), (6, 9), (7, 9), (8, 9), (9, 9), (10, 9)]
+    action_demo_1 = [1]  # 0.7
+    action_demo_2 = [3, 1, 1]  # 8.2
+    action_demo_3 = [3, 3, 1, 1, 1]  # 11.5
+    action_demo_4 = [3, 3, 3, 1, 1, 1, 1]  # 14.0
+    action_demo_5 = [3, 3, 3, 3, 1, 1, 1, 1]  # 15.1
+    action_demo_6 = [3, 3, 3, 3, 3, 1, 1, 1, 1]  # 16.1
+    action_demo_7 = [3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1]  # 19.6
+    action_demo_8 = [3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1]  # 20.3
+    action_demo_9 = [3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 22.4
+    action_demo_10 = [3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 23.7
+    action_demos = [action_demo_1, action_demo_2, action_demo_3, action_demo_4, action_demo_5, action_demo_6,
+                    action_demo_7, action_demo_8, action_demo_9, action_demo_10]
 
-    traj_to_9_8 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8),
-                   (2, 8), (3, 8), (4, 8), (5, 8), (6, 8), (7, 8), (8, 8), (9, 8)]
-
-    traj_to_7_7 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (2, 7),
-                   (3, 7), (4, 7), (5, 7), (6, 7), (7, 7)]
-
-    traj_to_7_6 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (2, 6), (3, 6),
-                   (4, 6), (5, 6), (6, 6), (7, 6)]
-
-    traj_to_4_5 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (2, 5), (3, 5), (4, 5)]
-    traj_to_4_4 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (1, 4), (2, 4), (3, 4), (4, 4)]
-    traj_to_4_3 = [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (2, 3), (3, 3), (4, 3)]
-    traj_to_3_2 = [(0, 0), (0, 1), (1, 1), (1, 2), (2, 2), (3, 2)]
-    traj_to_2_1 = [(0, 0), (0, 1), (1, 1), (2, 1)]
-    traj_to_1_0 = [(0, 0), (1, 0)]
-    trajs = [traj_to_10_9, traj_to_9_8, traj_to_7_7, traj_to_7_6, traj_to_4_5, traj_to_4_4, traj_to_4_3, traj_to_3_2,
-             traj_to_2_1, traj_to_1_0]
     treasure_w = 0.0
     sum_utility = 0
     # pref_list = [1, 0.7, 0.67, 0.66, 0.58, 0.54, 0.51, 0.47, 0.39, 0.21]
+    return_list = []
+    treasure_ws = []
+    value_vecs = []
     for i in range(101):
         # for treasure_w in pref_list:
         treasure_w = round((100 - i) / 100, 2)
         utility_list = []
-        for traj in trajs:
-            utility,_ = dst_env.calculate_utility(demo=traj[1:], pref_w=np.array([1 - treasure_w, treasure_w]))
-            utility_list.append(utility)
-        sum_utility += max(utility_list)
-        idx = np.argmax(utility_list)
-        print(f"pref:{[1 - treasure_w, treasure_w]}\tmax_utility:{max(utility_list)}\tpos:{10 - idx}")
-    print(f"avg utility:{sum_utility / 101}")
-    dst_env.state_traj_to_actions(traj_to_4_5)
+        for demo in action_demos:
+            value_scalar, value_vec = dst_env.calculate_utility_from_actions(action_demo=demo,
+                                                                             pref_w=np.array([1 - treasure_w, treasure_w]))
+            # value_vecs.append(value_vec)
+            utility_list.append(value_scalar)
+        print(f"w_vec:{[1 - treasure_w, treasure_w]}\tV*S(w):{max(utility_list)}\tdemo:{np.argmax(utility_list)}")
+    #     sum_utility += max(utility_list)
+    #     idx = np.argmax(utility_list)
+    #     print(f"pref:{[1 - treasure_w, treasure_w]}\tmax_utility:{max(utility_list)}\tpos:{10 - idx}")
+    #     return_list.append(max(utility_list))
+    #     treasure_ws.append(treasure_w)
+    # print(f"return_list:{return_list}\ttreasure_ws:{treasure_ws}")
+    # return_list = return_list[::-1]
+    # treasure_ws = treasure_ws[::-1]
+    # print(f"avg utility:{sum_utility / 101}")
+    # # dst_env.state_traj_to_actions(traj_to_4_5)
+    # plt.plot(treasure_ws, return_list, color="red")
+    # plt.show()

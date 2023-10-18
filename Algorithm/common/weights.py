@@ -56,3 +56,7 @@ def extrema_weights(dim: int) -> List[np.ndarray]:
         dim: size of the weight vector
     """
     return list(np.eye(dim, dtype=np.float32))
+
+if __name__ == '__main__':
+    print(equally_spaced_weights(dim=2,n=101))
+    print(extrema_weights(dim=2))

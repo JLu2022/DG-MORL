@@ -1,0 +1,329 @@
+diff --git a/Algorithm/go_explore/__pycache__/explore.cpython-311.pyc b/Algorithm/go_explore/__pycache__/explore.cpython-311.pyc
+deleted file mode 100644
+index b240f8a..0000000
+Binary files a/Algorithm/go_explore/__pycache__/explore.cpython-311.pyc and /dev/null differ
+diff --git a/Algorithm/go_explore/__pycache__/explore.cpython-39.pyc b/Algorithm/go_explore/__pycache__/explore.cpython-39.pyc
+deleted file mode 100644
+index 2aeb37a..0000000
+Binary files a/Algorithm/go_explore/__pycache__/explore.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/gpi_ls.py b/Algorithm/gpi_ls.py
+index 81021a0..a67b79f 100644
+--- a/Algorithm/gpi_ls.py
++++ b/Algorithm/gpi_ls.py
+@@ -12,18 +12,18 @@ import torch.nn.functional as F
+ import torch.optim as optim
+ import wandb
+ 
+-from common.buffer import ReplayBuffer
+-from common.evaluation import (
++from Algorithm.common.buffer import ReplayBuffer
++from Algorithm.common.evaluation import (
+     log_all_multi_policy_metrics,
+     log_episode_info,
+     policy_evaluation_mo,
+ )
+-from common.model_based.probabilistic_ensemble import (
++from Algorithm.common.model_based.probabilistic_ensemble import (
+     ProbabilisticEnsemble,
+ )
+-from common.model_based.utils import ModelEnv, visualize_eval
+-from common.morl_algorithm import MOAgent, MOPolicy
+-from common.networks import (
++from Algorithm.common.model_based.utils import ModelEnv, visualize_eval
++from Algorithm.common.morl_algorithm import MOAgent, MOPolicy
++from Algorithm.common.networks import (
+     NatureCNN,
+     get_grad_norm,
+     huber,
+@@ -31,10 +31,10 @@ from common.networks import (
+     mlp,
+     polyak_update,
+ )
+-from common.prioritized_buffer import PrioritizedReplayBuffer
+-from common.utils import linearly_decaying_value, unique_tol
+-from common.weights import equally_spaced_weights
+-from linear_support import LinearSupport
++from Algorithm.common.prioritized_buffer import PrioritizedReplayBuffer
++from Algorithm.common.utils import linearly_decaying_value, unique_tol
++from Algorithm.common.weights import equally_spaced_weights
++from Algorithm.linear_support import LinearSupport
+ 
+ 
+ class QNet(nn.Module):
+diff --git a/Algorithm/rl_algorithm/PPO/__pycache__/buffer.cpython-39.pyc b/Algorithm/rl_algorithm/PPO/__pycache__/buffer.cpython-39.pyc
+deleted file mode 100644
+index 83b39ac..0000000
+Binary files a/Algorithm/rl_algorithm/PPO/__pycache__/buffer.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/PPO/__pycache__/distributions.cpython-39.pyc b/Algorithm/rl_algorithm/PPO/__pycache__/distributions.cpython-39.pyc
+deleted file mode 100644
+index 50d43b1..0000000
+Binary files a/Algorithm/rl_algorithm/PPO/__pycache__/distributions.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/PPO/__pycache__/ppo.cpython-39.pyc b/Algorithm/rl_algorithm/PPO/__pycache__/ppo.cpython-39.pyc
+deleted file mode 100644
+index 58397c6..0000000
+Binary files a/Algorithm/rl_algorithm/PPO/__pycache__/ppo.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/__pycache__/D_shape_tabular_Q.cpython-39.pyc b/Algorithm/rl_algorithm/__pycache__/D_shape_tabular_Q.cpython-39.pyc
+deleted file mode 100644
+index 9c74864..0000000
+Binary files a/Algorithm/rl_algorithm/__pycache__/D_shape_tabular_Q.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/__pycache__/D_shaped_DQN.cpython-39.pyc b/Algorithm/rl_algorithm/__pycache__/D_shaped_DQN.cpython-39.pyc
+deleted file mode 100644
+index 1e71f38..0000000
+Binary files a/Algorithm/rl_algorithm/__pycache__/D_shaped_DQN.cpython-39.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-311.pyc b/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-311.pyc
+deleted file mode 100644
+index 69b059e..0000000
+Binary files a/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-311.pyc and /dev/null differ
+diff --git a/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-39.pyc b/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-39.pyc
+deleted file mode 100644
+index 229ee3e..0000000
+Binary files a/Algorithm/rl_algorithm/__pycache__/backward_Q_agent.cpython-39.pyc and /dev/null differ
+diff --git a/launch_experiment.py b/launch_experiment.py
+new file mode 100644
+index 0000000..4562e4e
+--- /dev/null
++++ b/launch_experiment.py
+@@ -0,0 +1,207 @@
++"""Launches an experiment on a given environment and algorithm.
++
++Many parameters can be given in the command line, see the help for more infos.
++
++Examples:
++    python benchmark/launch_experiment.py --algo pcn --env-id deep-sea-treasure-v0 --num-timesteps 1000000 --gamma 0.99 --ref-point 0 -25 --auto-tag True --wandb-entity openrlbenchmark --seed 0 --init-hyperparams "scaling_factor:np.array([1, 1, 1])"
++"""
++
++import argparse
++import os
++import subprocess
++from distutils.util import strtobool
++
++import mo_gymnasium as mo_gym
++import numpy as np
++import requests
++from gymnasium.wrappers import FlattenObservation
++from mo_gymnasium.utils import MORecordEpisodeStatistics
++
++from Algorithm.common.evaluation import seed_everything
++from Algorithm.gpi_ls import GPILS, GPIPD
++
++
++ALGOS = {
++
++    "gpi_pd_discrete": GPIPD,
++    "gpi_ls_discrete": GPILS,
++}
++
++ENVS_WITH_KNOWN_PARETO_FRONT = [
++    "deep-sea-treasure-concave-v0",
++    "deep-sea-treasure-v0",
++    "minecart-v0",
++    "resource-gathering-v0",
++    "fruit-tree-v0",
++]
++
++
++class StoreDict(argparse.Action):
++    """
++    Custom argparse action for storing dict.
++    In: args1:0.0 args2:"dict(a=1)"
++    Out: {'args1': 0.0, arg2: dict(a=1)}
++
++    From RL Baselines3 Zoo
++    """
++
++    def __init__(self, option_strings, dest, nargs=None, **kwargs):
++        self._nargs = nargs
++        super().__init__(option_strings, dest, nargs=nargs, **kwargs)
++
++    def __call__(self, parser, namespace, values, option_string=None):
++        arg_dict = {}
++        for arguments in values:
++            key = arguments.split(":")[0]
++            value = ":".join(arguments.split(":")[1:])
++            # Evaluate the string as python code
++            arg_dict[key] = eval(value)
++        setattr(namespace, self.dest, arg_dict)
++
++
++def parse_args():
++    parser = argparse.ArgumentParser()
++    parser.add_argument("--algo", type=str, help="Name of the algorithm to run", choices=ALGOS.keys(), required=True)
++    parser.add_argument("--env-id", type=str, help="MO-Gymnasium id of the environment to run", required=True)
++    parser.add_argument("--num-timesteps", type=int, help="Number of timesteps to train for", required=True)
++    parser.add_argument("--gamma", type=float, help="Discount factor to apply to the environment and algorithm", required=True)
++    parser.add_argument(
++        "--ref-point", type=float, nargs="+", help="Reference point to use for the hypervolume calculation", required=True
++    )
++    parser.add_argument("--seed", type=int, help="Random seed to use", default=42)
++    parser.add_argument("--wandb-entity", type=str, help="Wandb entity to use", required=False)
++    parser.add_argument(
++        "--auto-tag",
++        type=lambda x: bool(strtobool(x)),
++        default=True,
++        nargs="?",
++        const=True,
++        help="if toggled, the runs will be tagged with git tags, commit, and pull request number if possible",
++    )
++    parser.add_argument(
++        "--init-hyperparams",
++        type=str,
++        nargs="+",
++        action=StoreDict,
++        help="Override hyperparameters to use for the initiation of the algorithm. Example: --init-hyperparams learning_rate:0.001 final_epsilon:0.1",
++        default={},
++    )
++
++    parser.add_argument(
++        "--train-hyperparams",
++        type=str,
++        nargs="+",
++        action=StoreDict,
++        help="Override hyperparameters to use for the train method algorithm. Example: --train-hyperparams num_eval_weights_for_front:10 timesteps_per_iter:10000",
++        default={},
++    )
++
++    return parser.parse_args()
++
++
++def autotag() -> str:
++    """This adds a tag to the wandb run marking the commit number, allows to versioning of experiments. From CleanRL's benchmark utility."""
++    wandb_tag = ""
++    print("autotag feature is enabled")
++    try:
++        git_tag = subprocess.check_output(["git", "describe", "--tags"]).decode("ascii").strip()
++        wandb_tag = f"{git_tag}"
++        print(f"identified git tag: {git_tag}")
++    except subprocess.CalledProcessError:
++        return wandb_tag
++
++    git_commit = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"]).decode("ascii").strip()
++    try:
++        # try finding the pull request number on github
++        prs = requests.get(f"https://api.github.com/search/issues?q=repo:LucasAlegre/morl-baselines+is:pr+{git_commit}")
++        if prs.status_code == 200:
++            prs = prs.json()
++            if len(prs["items"]) > 0:
++                pr = prs["items"][0]
++                pr_number = pr["number"]
++                wandb_tag += f",pr-{pr_number}"
++        print(f"identified github pull request: {pr_number}")
++    except Exception as e:
++        print(e)
++
++    return wandb_tag
++
++
++def main():
++    args = parse_args()
++    print(args)
++
++    seed_everything(args.seed)
++
++    if args.auto_tag:
++        if "WANDB_TAGS" in os.environ:
++            raise ValueError(
++                "WANDB_TAGS is already set. Please unset it before running this script or run the script with --auto-tag False"
++            )
++        wandb_tag = autotag()
++        if len(wandb_tag) > 0:
++            os.environ["WANDB_TAGS"] = wandb_tag
++
++    if args.algo == "pgmorl":
++        # PGMORL creates its own environments because it requires wrappers
++        print(f"Instantiating {args.algo} on {args.env_id}")
++        eval_env = mo_gym.make(args.env_id)
++        algo = ALGOS[args.algo](
++            env_id=args.env_id,
++            origin=np.array(args.ref_point),
++            gamma=args.gamma,
++            log=True,
++            seed=args.seed,
++            wandb_entity=args.wandb_entity,
++            **args.init_hyperparams,
++        )
++        print(algo.get_config())
++
++        print("Training starts... Let's roll!")
++        algo.train(
++            total_timesteps=args.num_timesteps,
++            eval_env=eval_env,
++            ref_point=np.array(args.ref_point),
++            known_pareto_front=None,
++            **args.train_hyperparams,
++        )
++
++    else:
++        env = MORecordEpisodeStatistics(mo_gym.make(args.env_id), gamma=args.gamma)
++        eval_env = mo_gym.make(args.env_id)
++        if "highway" in args.env_id:
++            env = FlattenObservation(env)
++            eval_env = FlattenObservation(eval_env)
++        print(f"Instantiating {args.algo} on {args.env_id}")
++        if args.algo == "ols":
++            args.init_hyperparams["experiment_name"] = "MultiPolicy MO Q-Learning (OLS)"
++        elif args.algo == "gpi-ls":
++            args.init_hyperparams["experiment_name"] = "MultiPolicy MO Q-Learning (GPI-LS)"
++
++        algo = ALGOS[args.algo](
++            env=env,
++            gamma=args.gamma,
++            log=True,
++            seed=args.seed,
++            wandb_entity=args.wandb_entity,
++            **args.init_hyperparams,
++        )
++        if args.env_id in ENVS_WITH_KNOWN_PARETO_FRONT:
++            known_pareto_front = env.unwrapped.pareto_front(gamma=args.gamma)
++        else:
++            known_pareto_front = None
++
++        print(algo.get_config())
++
++        print("Training starts... Let's roll!")
++        algo.train(
++            total_timesteps=args.num_timesteps,
++            eval_env=eval_env,
++            ref_point=np.array(args.ref_point),
++            known_pareto_front=known_pareto_front,
++            **args.train_hyperparams,
++        )
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/simulators/__pycache__/abstract_simulator.cpython-311.pyc b/simulators/__pycache__/abstract_simulator.cpython-311.pyc
+deleted file mode 100644
+index de86957..0000000
+Binary files a/simulators/__pycache__/abstract_simulator.cpython-311.pyc and /dev/null differ
+diff --git a/simulators/__pycache__/abstract_simulator.cpython-39.pyc b/simulators/__pycache__/abstract_simulator.cpython-39.pyc
+deleted file mode 100644
+index 03ce43f..0000000
+Binary files a/simulators/__pycache__/abstract_simulator.cpython-39.pyc and /dev/null differ
+diff --git a/simulators/__pycache__/discrete_grid_world.cpython-39.pyc b/simulators/__pycache__/discrete_grid_world.cpython-39.pyc
+deleted file mode 100644
+index 4f1a760..0000000
+Binary files a/simulators/__pycache__/discrete_grid_world.cpython-39.pyc and /dev/null differ
+diff --git a/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-311.pyc b/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-311.pyc
+index 4ff1f78..b798eef 100644
+Binary files a/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-311.pyc and b/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-311.pyc differ
+diff --git a/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-39.pyc b/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-39.pyc
+index d472bc9..3b1d9b6 100644
+Binary files a/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-39.pyc and b/simulators/deep_sea_treasure/__pycache__/deep_sea_treasure.cpython-39.pyc differ
+diff --git a/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-311.pyc b/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-311.pyc
+index 98480bc..8d583f0 100644
+Binary files a/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-311.pyc and b/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-311.pyc differ
+diff --git a/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-39.pyc b/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-39.pyc
+index 18b5d1a..0558383 100644
+Binary files a/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-39.pyc and b/simulators/deep_sea_treasure/__pycache__/preference_space.cpython-39.pyc differ
+diff --git a/util/__pycache__/archives.cpython-39.pyc b/util/__pycache__/archives.cpython-39.pyc
+index 1889210..722a094 100644
+Binary files a/util/__pycache__/archives.cpython-39.pyc and b/util/__pycache__/archives.cpython-39.pyc differ
+diff --git a/util/__pycache__/dataclass.cpython-39.pyc b/util/__pycache__/dataclass.cpython-39.pyc
+index f714feb..6f29722 100644
+Binary files a/util/__pycache__/dataclass.cpython-39.pyc and b/util/__pycache__/dataclass.cpython-39.pyc differ
+diff --git a/util/__pycache__/utils.cpython-311.pyc b/util/__pycache__/utils.cpython-311.pyc
+index 905e82b..ee45603 100644
+Binary files a/util/__pycache__/utils.cpython-311.pyc and b/util/__pycache__/utils.cpython-311.pyc differ
+diff --git a/util/__pycache__/utils.cpython-39.pyc b/util/__pycache__/utils.cpython-39.pyc
+index 1c309b1..cd496cc 100644
+Binary files a/util/__pycache__/utils.cpython-39.pyc and b/util/__pycache__/utils.cpython-39.pyc differ

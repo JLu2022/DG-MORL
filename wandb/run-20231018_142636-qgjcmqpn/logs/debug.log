@@ -1,0 +1,32 @@
+2023-10-18 14:26:36,243 INFO    MainThread:20576 [wandb_setup.py:_flush():76] Current SDK version is 0.15.5
+2023-10-18 14:26:36,243 INFO    MainThread:20576 [wandb_setup.py:_flush():76] Configure stats pid to 20576
+2023-10-18 14:26:36,243 INFO    MainThread:20576 [wandb_setup.py:_flush():76] Loading settings from C:\Users\19233436\.config\wandb\settings
+2023-10-18 14:26:36,243 INFO    MainThread:20576 [wandb_setup.py:_flush():76] Loading settings from C:\Users\19233436\PycharmProjects\MOGE\wandb\settings
+2023-10-18 14:26:36,243 INFO    MainThread:20576 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-10-18 14:26:36,243 INFO    MainThread:20576 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-10-18 14:26:36,244 INFO    MainThread:20576 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'launch_experiment.py', 'program': 'C:\\Users\\19233436\\PycharmProjects\\MOGE\\launch_experiment.py'}
+2023-10-18 14:26:36,245 INFO    MainThread:20576 [wandb_init.py:_log_setup():507] Logging user logs to C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142636-qgjcmqpn\logs\debug.log
+2023-10-18 14:26:36,245 INFO    MainThread:20576 [wandb_init.py:_log_setup():508] Logging internal logs to C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142636-qgjcmqpn\logs\debug-internal.log
+2023-10-18 14:26:36,245 INFO    MainThread:20576 [wandb_init.py:init():547] calling init triggers
+2023-10-18 14:26:36,245 INFO    MainThread:20576 [wandb_init.py:init():554] wandb.init called with sweep_config: {}
+config: {'env_id': 'deep-sea-treasure-v0', 'learning_rate': 0.0003, 'initial_epsilon': 0.01, 'epsilon_decay_steps:': None, 'batch_size': 128, 'per': True, 'gpi_pd': False, 'alpha_per': 0.6, 'min_priority': 0.01, 'tau': 1.0, 'num_nets': 2, 'clip_grand_norm': None, 'target_net_update_freq': 1000, 'gamma': 0.99, 'net_arch': [256, 256, 256, 256], 'dynamics_model_arch': [256, 256, 256], 'gradient_updates': 20, 'buffer_size': 1000000, 'learning_starts': 100, 'dyna': False, 'dynamics_rollout_len': 1, 'dynamics_uncertainty_threshold': 1.5, 'dynamics_rollout_starts': 5000, 'dynamics_rollout_freq': 250, 'dynamics_rollout_batch_size': 25000, 'dynamics_buffer_size': 100000, 'dynamics_normalize_inputs': False, 'dynamics_ensemble_size': 5, 'dynamics_num_elites': 2, 'real_ratio': 0.5, 'drop_rate': 0.01, 'layer_norm': True, 'seed': 42, 'algo': 'GPI-LS'}
+2023-10-18 14:26:36,246 INFO    MainThread:20576 [wandb_init.py:init():596] starting backend
+2023-10-18 14:26:36,246 INFO    MainThread:20576 [wandb_init.py:init():600] setting up manager
+2023-10-18 14:26:36,250 INFO    MainThread:20576 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=spawn, using: spawn
+2023-10-18 14:26:36,256 INFO    MainThread:20576 [wandb_init.py:init():606] backend started and connected
+2023-10-18 14:26:36,268 INFO    MainThread:20576 [wandb_init.py:init():705] updated telemetry
+2023-10-18 14:26:36,293 INFO    MainThread:20576 [wandb_init.py:init():738] communicating run to backend with 60.0 second timeout
+2023-10-18 14:26:36,683 INFO    MainThread:20576 [wandb_run.py:_on_init():2173] communicating current version
+2023-10-18 14:26:36,718 INFO    MainThread:20576 [wandb_run.py:_on_init():2182] got version response upgrade_message: "wandb version 0.15.12 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2023-10-18 14:26:36,718 INFO    MainThread:20576 [wandb_init.py:init():789] starting run threads in backend
+2023-10-18 14:26:36,960 INFO    MainThread:20576 [wandb_run.py:_console_start():2152] atexit reg
+2023-10-18 14:26:36,961 INFO    MainThread:20576 [wandb_run.py:_redirect():2007] redirect: SettingsConsole.WRAP_RAW
+2023-10-18 14:26:36,961 INFO    MainThread:20576 [wandb_run.py:_redirect():2072] Wrapping output streams.
+2023-10-18 14:26:36,961 INFO    MainThread:20576 [wandb_run.py:_redirect():2097] Redirects installed.
+2023-10-18 14:26:36,961 INFO    MainThread:20576 [wandb_init.py:init():830] run started, returning control to user process
+2023-10-18 14:26:36,962 INFO    MainThread:20576 [wandb_config.py:__setitem__():151] config set ref_point = [4000.0] - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x000001B2BB4273D0>>
+2023-10-18 14:26:36,962 INFO    MainThread:20576 [wandb_run.py:_config_callback():1281] config_cb ref_point [4000.0] None
+2023-10-18 14:26:36,962 INFO    MainThread:20576 [wandb_config.py:__setitem__():151] config set known_front = [[0.7, -1.0], [8.036819999999999, -2.9701], [11.046854114999999, -4.90099501], [13.180722091614, -6.793465209301], [14.074186753395548, -7.72553055720799], [14.856189580289515, -8.64827525163591], [17.373143485636135, -12.247897700103202], [17.81367676687905, -13.12541872310217], [19.07265407252521, -15.70568066160731], [19.777976146367074, -17.383137616441324]] - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x000001B2BB4273D0>>
+2023-10-18 14:26:36,962 INFO    MainThread:20576 [wandb_run.py:_config_callback():1281] config_cb known_front [[0.7, -1.0], [8.036819999999999, -2.9701], [11.046854114999999, -4.90099501], [13.180722091614, -6.793465209301], [14.074186753395548, -7.72553055720799], [14.856189580289515, -8.64827525163591], [17.373143485636135, -12.247897700103202], [17.81367676687905, -13.12541872310217], [19.07265407252521, -15.70568066160731], [19.777976146367074, -17.383137616441324]] None
+2023-10-18 14:27:23,316 WARNING MsgRouterThr:20576 [router.py:message_loop():77] message_loop has been closed

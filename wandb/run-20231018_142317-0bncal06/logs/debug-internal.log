@@ -1,0 +1,269 @@
+2023-10-18 14:23:17,196 INFO    StreamThr :11392 [internal.py:wandb_internal():86] W&B internal server running at pid: 11392, started at: 2023-10-18 14:23:17.196938
+2023-10-18 14:23:17,197 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status
+2023-10-18 14:23:17,212 INFO    WriterThread:11392 [datastore.py:open_for_write():85] open: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\run-0bncal06.wandb
+2023-10-18 14:23:17,212 DEBUG   SenderThread:11392 [sender.py:send():369] send: header
+2023-10-18 14:23:17,243 DEBUG   SenderThread:11392 [sender.py:send():369] send: run
+2023-10-18 14:23:18,014 INFO    SenderThread:11392 [dir_watcher.py:__init__():211] watching files in: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files
+2023-10-18 14:23:18,014 INFO    SenderThread:11392 [sender.py:_start_run_threads():1100] run started: 0bncal06 with start time 1697635397.197941
+2023-10-18 14:23:18,021 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: summary_record
+2023-10-18 14:23:18,021 INFO    SenderThread:11392 [sender.py:_save_file():1354] saving file wandb-summary.json with policy end
+2023-10-18 14:23:18,027 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: check_version
+2023-10-18 14:23:18,028 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: check_version
+2023-10-18 14:23:18,063 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: run_start
+2023-10-18 14:23:18,075 DEBUG   HandlerThread:11392 [system_info.py:__init__():31] System info init
+2023-10-18 14:23:18,075 DEBUG   HandlerThread:11392 [system_info.py:__init__():46] System info init done
+2023-10-18 14:23:18,075 INFO    HandlerThread:11392 [system_monitor.py:start():181] Starting system monitor
+2023-10-18 14:23:18,075 INFO    SystemMonitor:11392 [system_monitor.py:_start():145] Starting system asset monitoring threads
+2023-10-18 14:23:18,075 INFO    HandlerThread:11392 [system_monitor.py:probe():201] Collecting system info
+2023-10-18 14:23:18,078 INFO    SystemMonitor:11392 [interfaces.py:start():190] Started cpu monitoring
+2023-10-18 14:23:18,079 INFO    SystemMonitor:11392 [interfaces.py:start():190] Started disk monitoring
+2023-10-18 14:23:18,079 INFO    SystemMonitor:11392 [interfaces.py:start():190] Started gpu monitoring
+2023-10-18 14:23:18,084 INFO    SystemMonitor:11392 [interfaces.py:start():190] Started memory monitoring
+2023-10-18 14:23:18,088 INFO    SystemMonitor:11392 [interfaces.py:start():190] Started network monitoring
+2023-10-18 14:23:18,095 DEBUG   HandlerThread:11392 [system_info.py:probe():195] Probing system
+2023-10-18 14:23:18,095 DEBUG   HandlerThread:11392 [system_info.py:_probe_git():180] Probing git
+2023-10-18 14:23:18,098 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:18,098 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:18,143 DEBUG   HandlerThread:11392 [system_info.py:_probe_git():188] Probing git done
+2023-10-18 14:23:18,143 DEBUG   HandlerThread:11392 [system_info.py:probe():240] Probing system done
+2023-10-18 14:23:18,143 DEBUG   HandlerThread:11392 [system_monitor.py:probe():210] {'os': 'Windows-10-10.0.19045-SP0', 'python': '3.9.15', 'heartbeatAt': '2023-10-18T13:23:18.095775', 'startedAt': '2023-10-18T13:23:17.178941', 'docker': None, 'cuda': None, 'args': ('--algo', 'gpi_ls_discrete', '--env-id', 'deep-sea-treasure-v0', '--num-timesteps', '40000', '--gamma', '0.99', '--ref-point', '4000'), 'state': 'running', 'program': 'C:\\Users\\19233436\\PycharmProjects\\MOGE\\launch_experiment.py', 'codePath': 'launch_experiment.py', 'git': {'remote': 'https://github.com/JLu2022/MOGE.git', 'commit': 'caae01c0382da946b2eb1ca6e765981dbf8c2193'}, 'email': 'junlinlu16@gmail.com', 'root': 'C:/Users/19233436/PycharmProjects/MOGE', 'host': 'DESKTOP-UUPRB15', 'username': '19233436', 'executable': 'C:\\Users\\19233436\\Anaconda3\\envs\\MAPI\\python.exe', 'cpu_count': 16, 'cpu_count_logical': 24, 'cpu_freq': {'current': 2400.0, 'min': 0.0, 'max': 2400.0}, 'cpu_freq_per_core': [{'current': 2400.0, 'min': 0.0, 'max': 2400.0}], 'disk': {'total': 951.1328086853027, 'used': 196.46949005126953}, 'gpu': 'NVIDIA T1000', 'gpu_count': 1, 'gpu_devices': [{'name': 'NVIDIA T1000', 'memory_total': 4294967296}], 'memory': {'total': 31.696025848388672}}
+2023-10-18 14:23:18,143 INFO    HandlerThread:11392 [system_monitor.py:probe():211] Finished collecting system info
+2023-10-18 14:23:18,143 INFO    HandlerThread:11392 [system_monitor.py:probe():214] Publishing system info
+2023-10-18 14:23:18,143 DEBUG   HandlerThread:11392 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2023-10-18 14:23:18,144 DEBUG   HandlerThread:11392 [system_info.py:_save_pip():67] Saving pip packages done
+2023-10-18 14:23:18,144 DEBUG   HandlerThread:11392 [system_info.py:_save_conda():74] Saving list of conda packages installed into the current environment
+2023-10-18 14:23:18,146 ERROR   HandlerThread:11392 [system_info.py:_save_conda():85] Error saving conda packages: [WinError 2] The system cannot find the file specified
+Traceback (most recent call last):
+  File "C:\Users\19233436\Anaconda3\envs\MAPI\lib\site-packages\wandb\sdk\internal\system\system_info.py", line 81, in _save_conda
+    subprocess.call(
+  File "C:\Users\19233436\Anaconda3\envs\MAPI\lib\subprocess.py", line 349, in call
+    with Popen(*popenargs, **kwargs) as p:
+  File "C:\Users\19233436\Anaconda3\envs\MAPI\lib\subprocess.py", line 951, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Users\19233436\Anaconda3\envs\MAPI\lib\subprocess.py", line 1420, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+2023-10-18 14:23:18,147 DEBUG   HandlerThread:11392 [system_info.py:_save_conda():86] Saving conda packages done
+2023-10-18 14:23:18,147 DEBUG   HandlerThread:11392 [system_info.py:_save_code():89] Saving code
+2023-10-18 14:23:18,169 DEBUG   HandlerThread:11392 [system_info.py:_save_code():110] Saving code done
+2023-10-18 14:23:18,169 DEBUG   HandlerThread:11392 [system_info.py:_save_patches():127] Saving git patches
+2023-10-18 14:23:18,278 DEBUG   HandlerThread:11392 [system_info.py:_save_patches():169] Saving git patches done
+2023-10-18 14:23:18,279 INFO    HandlerThread:11392 [system_monitor.py:probe():216] Finished publishing system info
+2023-10-18 14:23:18,298 DEBUG   SenderThread:11392 [sender.py:send():369] send: files
+2023-10-18 14:23:18,298 INFO    SenderThread:11392 [sender.py:_save_file():1354] saving file wandb-metadata.json with policy now
+2023-10-18 14:23:18,298 INFO    SenderThread:11392 [sender.py:_save_file():1354] saving file code\launch_experiment.py with policy now
+2023-10-18 14:23:18,298 INFO    SenderThread:11392 [sender.py:_save_file():1354] saving file diff.patch with policy now
+2023-10-18 14:23:18,301 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: stop_status
+2023-10-18 14:23:18,302 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: stop_status
+2023-10-18 14:23:18,472 DEBUG   SenderThread:11392 [sender.py:send():369] send: telemetry
+2023-10-18 14:23:18,472 DEBUG   SenderThread:11392 [sender.py:send():369] send: metric
+2023-10-18 14:23:18,472 WARNING SenderThread:11392 [sender.py:send_metric():1305] Seen metric with glob (shouldn't happen)
+2023-10-18 14:23:18,472 DEBUG   SenderThread:11392 [sender.py:send():369] send: telemetry
+2023-10-18 14:23:18,473 DEBUG   SenderThread:11392 [sender.py:send():369] send: telemetry
+2023-10-18 14:23:18,473 DEBUG   SenderThread:11392 [sender.py:send():369] send: config
+2023-10-18 14:23:18,474 DEBUG   SenderThread:11392 [sender.py:send():369] send: config
+2023-10-18 14:23:18,559 INFO    wandb-upload_1:11392 [upload_job.py:push():113] Skipped uploading C:\Users\19233436\AppData\Local\Temp\tmp0wy3mvnhwandb\0axyy2m5-code/launch_experiment.py
+2023-10-18 14:23:18,853 INFO    wandb-upload_2:11392 [upload_job.py:push():133] Uploaded file C:\Users\19233436\AppData\Local\Temp\tmp0wy3mvnhwandb\u6auez2t-diff.patch
+2023-10-18 14:23:18,897 INFO    wandb-upload_0:11392 [upload_job.py:push():133] Uploaded file C:\Users\19233436\AppData\Local\Temp\tmp0wy3mvnhwandb\aftqr2n4-wandb-metadata.json
+2023-10-18 14:23:19,015 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_created():272] file/dir created: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\wandb-metadata.json
+2023-10-18 14:23:19,015 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_created():272] file/dir created: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\wandb-summary.json
+2023-10-18 14:23:19,015 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_created():272] file/dir created: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\output.log
+2023-10-18 14:23:19,015 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_created():272] file/dir created: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\requirements.txt
+2023-10-18 14:23:19,015 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_created():272] file/dir created: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\code\launch_experiment.py
+2023-10-18 14:23:19,016 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_created():272] file/dir created: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\diff.patch
+2023-10-18 14:23:19,016 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_created():272] file/dir created: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\conda-environment.yaml
+2023-10-18 14:23:19,016 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_created():272] file/dir created: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\code
+2023-10-18 14:23:20,133 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:20,133 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:21,026 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_modified():289] file/dir modified: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\output.log
+2023-10-18 14:23:22,147 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:22,148 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:22,918 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:23:24,159 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:24,159 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:26,171 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:26,171 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:27,962 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:23:28,186 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:28,186 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:30,198 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:30,198 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:32,203 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:32,203 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:33,011 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:23:33,313 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: stop_status
+2023-10-18 14:23:33,313 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: stop_status
+2023-10-18 14:23:34,218 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:34,218 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:36,236 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:36,236 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:38,256 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:38,256 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:38,552 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:23:40,267 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:40,267 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:42,285 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:42,285 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:43,611 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:23:44,292 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:44,292 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:46,299 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:46,299 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:48,313 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: stop_status
+2023-10-18 14:23:48,313 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: stop_status
+2023-10-18 14:23:48,329 ERROR   gpu       :11392 [interfaces.py:aggregate():161] Failed to serialize metric: division by zero
+2023-10-18 14:23:48,334 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:48,334 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:49,543 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:23:50,337 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_modified():289] file/dir modified: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\config.yaml
+2023-10-18 14:23:50,341 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:50,341 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:52,358 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:52,358 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:54,366 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:54,366 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:54,757 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:23:56,384 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:56,385 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:58,388 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:58,388 ERROR   gpu       :11392 [interfaces.py:monitor():144] Failed to sample metric: Not Supported
+2023-10-18 14:23:58,760 DEBUG   SenderThread:11392 [sender.py:send():369] send: exit
+2023-10-18 14:23:58,760 INFO    SenderThread:11392 [sender.py:send_exit():574] handling exit code: 1
+2023-10-18 14:23:58,761 INFO    SenderThread:11392 [sender.py:send_exit():576] handling runtime: 40
+2023-10-18 14:23:58,761 INFO    SenderThread:11392 [sender.py:_save_file():1354] saving file wandb-summary.json with policy end
+2023-10-18 14:23:58,761 INFO    SenderThread:11392 [sender.py:send_exit():582] send defer
+2023-10-18 14:23:58,762 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:23:58,762 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 0
+2023-10-18 14:23:58,762 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:23:58,762 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 0
+2023-10-18 14:23:58,762 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 1
+2023-10-18 14:23:58,762 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:23:58,762 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 1
+2023-10-18 14:23:58,762 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:23:58,762 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 1
+2023-10-18 14:23:58,762 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 2
+2023-10-18 14:23:58,762 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:23:58,762 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 2
+2023-10-18 14:23:58,762 INFO    HandlerThread:11392 [system_monitor.py:finish():190] Stopping system monitor
+2023-10-18 14:23:58,762 DEBUG   SystemMonitor:11392 [system_monitor.py:_start():159] Starting system metrics aggregation loop
+2023-10-18 14:23:58,763 DEBUG   SystemMonitor:11392 [system_monitor.py:_start():166] Finished system metrics aggregation loop
+2023-10-18 14:23:58,763 INFO    HandlerThread:11392 [interfaces.py:finish():202] Joined cpu monitor
+2023-10-18 14:23:58,763 DEBUG   SystemMonitor:11392 [system_monitor.py:_start():170] Publishing last batch of metrics
+2023-10-18 14:23:58,763 INFO    HandlerThread:11392 [interfaces.py:finish():202] Joined disk monitor
+2023-10-18 14:23:58,781 ERROR   gpu       :11392 [interfaces.py:aggregate():161] Failed to serialize metric: division by zero
+2023-10-18 14:23:58,781 INFO    HandlerThread:11392 [interfaces.py:finish():202] Joined gpu monitor
+2023-10-18 14:23:58,781 INFO    HandlerThread:11392 [interfaces.py:finish():202] Joined memory monitor
+2023-10-18 14:23:58,782 INFO    HandlerThread:11392 [interfaces.py:finish():202] Joined network monitor
+2023-10-18 14:23:58,782 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:23:58,782 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 2
+2023-10-18 14:23:58,782 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 3
+2023-10-18 14:23:58,782 DEBUG   SenderThread:11392 [sender.py:send():369] send: stats
+2023-10-18 14:23:58,782 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:23:58,782 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 3
+2023-10-18 14:23:58,782 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:23:58,782 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 3
+2023-10-18 14:23:58,782 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 4
+2023-10-18 14:23:58,782 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:23:58,782 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 4
+2023-10-18 14:23:58,782 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:23:58,782 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 4
+2023-10-18 14:23:58,783 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 5
+2023-10-18 14:23:58,783 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:23:58,783 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 5
+2023-10-18 14:23:58,783 DEBUG   SenderThread:11392 [sender.py:send():369] send: summary
+2023-10-18 14:23:58,783 INFO    SenderThread:11392 [sender.py:_save_file():1354] saving file wandb-summary.json with policy end
+2023-10-18 14:23:58,783 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:23:58,783 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 5
+2023-10-18 14:23:58,783 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 6
+2023-10-18 14:23:58,783 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:23:58,783 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 6
+2023-10-18 14:23:58,783 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:23:58,783 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 6
+2023-10-18 14:23:58,783 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 7
+2023-10-18 14:23:58,784 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:23:58,784 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:23:58,784 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 7
+2023-10-18 14:23:58,784 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:23:58,784 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 7
+2023-10-18 14:23:59,420 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_modified():289] file/dir modified: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\wandb-summary.json
+2023-10-18 14:23:59,765 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: poll_exit
+2023-10-18 14:24:00,805 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 8
+2023-10-18 14:24:00,805 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: poll_exit
+2023-10-18 14:24:00,806 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:24:00,806 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 8
+2023-10-18 14:24:00,807 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:24:00,808 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 8
+2023-10-18 14:24:00,808 INFO    SenderThread:11392 [job_builder.py:build():240] Attempting to build job artifact
+2023-10-18 14:24:00,809 INFO    SenderThread:11392 [job_builder.py:build():264] is repo sourced job
+2023-10-18 14:24:00,815 INFO    SenderThread:11392 [job_builder.py:build():305] adding wandb-job metadata file
+2023-10-18 14:24:00,822 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 9
+2023-10-18 14:24:00,823 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:24:00,823 DEBUG   SenderThread:11392 [sender.py:send():369] send: artifact
+2023-10-18 14:24:00,823 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 9
+2023-10-18 14:24:01,437 INFO    Thread-16 :11392 [dir_watcher.py:_on_file_modified():289] file/dir modified: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\output.log
+2023-10-18 14:24:03,828 INFO    wandb-upload_2:11392 [upload_job.py:push():88] Skipped uploading C:\Users\19233436\AppData\Local\wandb\wandb\artifacts\staging\tmpnbcam0o_
+2023-10-18 14:24:03,829 INFO    wandb-upload_0:11392 [upload_job.py:push():88] Skipped uploading C:\Users\19233436\AppData\Local\wandb\wandb\artifacts\staging\tmp83b1weaa
+2023-10-18 14:24:04,090 INFO    wandb-upload_1:11392 [upload_job.py:push():91] Uploaded file C:\Users\19233436\AppData\Local\wandb\wandb\artifacts\staging\tmpee7j0p_5
+2023-10-18 14:24:04,799 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: keepalive
+2023-10-18 14:24:05,189 INFO    SenderThread:11392 [sender.py:send_artifact():1450] sent artifact job-https___github.com_JLu2022_MOGE.git_launch_experiment.py - {'id': 'QXJ0aWZhY3Q6NjA4Nzc1Nzg4', 'digest': 'd4f5b1f79e43418fdda95a26f3c8e1cc', 'state': 'PENDING', 'aliases': [], 'artifactSequence': {'id': 'QXJ0aWZhY3RDb2xsZWN0aW9uOjEwNzc1MDI1Mg==', 'latestArtifact': {'id': 'QXJ0aWZhY3Q6NjA4Nzc0NzE3', 'versionIndex': 3}}, 'version': 'latest'}
+2023-10-18 14:24:05,189 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:24:05,189 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 9
+2023-10-18 14:24:05,189 INFO    SenderThread:11392 [dir_watcher.py:finish():359] shutting down directory watcher
+2023-10-18 14:24:05,472 INFO    SenderThread:11392 [dir_watcher.py:finish():389] scan: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files
+2023-10-18 14:24:05,473 INFO    SenderThread:11392 [dir_watcher.py:finish():403] scan save: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\conda-environment.yaml conda-environment.yaml
+2023-10-18 14:24:05,473 INFO    SenderThread:11392 [dir_watcher.py:finish():403] scan save: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\config.yaml config.yaml
+2023-10-18 14:24:05,473 INFO    SenderThread:11392 [dir_watcher.py:finish():403] scan save: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\diff.patch diff.patch
+2023-10-18 14:24:05,473 INFO    SenderThread:11392 [dir_watcher.py:finish():403] scan save: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\output.log output.log
+2023-10-18 14:24:05,475 INFO    SenderThread:11392 [dir_watcher.py:finish():403] scan save: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\requirements.txt requirements.txt
+2023-10-18 14:24:05,476 INFO    SenderThread:11392 [dir_watcher.py:finish():403] scan save: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\wandb-metadata.json wandb-metadata.json
+2023-10-18 14:24:05,476 INFO    SenderThread:11392 [dir_watcher.py:finish():403] scan save: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\wandb-summary.json wandb-summary.json
+2023-10-18 14:24:05,478 INFO    SenderThread:11392 [dir_watcher.py:finish():403] scan save: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\code\launch_experiment.py code/launch_experiment.py
+2023-10-18 14:24:05,478 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 10
+2023-10-18 14:24:05,480 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:24:05,480 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 10
+2023-10-18 14:24:05,480 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:24:05,480 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 10
+2023-10-18 14:24:05,480 INFO    SenderThread:11392 [file_pusher.py:finish():159] shutting down file pusher
+2023-10-18 14:24:05,950 INFO    wandb-upload_0:11392 [upload_job.py:push():133] Uploaded file C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\requirements.txt
+2023-10-18 14:24:05,963 INFO    wandb-upload_2:11392 [upload_job.py:push():133] Uploaded file C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\config.yaml
+2023-10-18 14:24:05,986 INFO    wandb-upload_3:11392 [upload_job.py:push():133] Uploaded file C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\wandb-summary.json
+2023-10-18 14:24:06,024 INFO    wandb-upload_1:11392 [upload_job.py:push():133] Uploaded file C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\files\output.log
+2023-10-18 14:24:06,232 INFO    Thread-15 :11392 [sender.py:transition_state():602] send defer: 11
+2023-10-18 14:24:06,232 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:24:06,232 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 11
+2023-10-18 14:24:06,233 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:24:06,233 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 11
+2023-10-18 14:24:06,233 INFO    SenderThread:11392 [file_pusher.py:join():164] waiting for file pusher
+2023-10-18 14:24:06,233 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 12
+2023-10-18 14:24:06,234 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:24:06,234 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 12
+2023-10-18 14:24:06,234 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: status_report
+2023-10-18 14:24:06,234 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:24:06,235 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 12
+2023-10-18 14:24:06,456 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 13
+2023-10-18 14:24:06,456 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:24:06,456 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 13
+2023-10-18 14:24:06,457 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:24:06,457 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 13
+2023-10-18 14:24:06,457 INFO    SenderThread:11392 [sender.py:transition_state():602] send defer: 14
+2023-10-18 14:24:06,457 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: defer
+2023-10-18 14:24:06,457 DEBUG   SenderThread:11392 [sender.py:send():369] send: final
+2023-10-18 14:24:06,457 INFO    HandlerThread:11392 [handler.py:handle_request_defer():170] handle defer: 14
+2023-10-18 14:24:06,457 DEBUG   SenderThread:11392 [sender.py:send():369] send: footer
+2023-10-18 14:24:06,457 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: defer
+2023-10-18 14:24:06,457 INFO    SenderThread:11392 [sender.py:send_request_defer():598] handle sender defer: 14
+2023-10-18 14:24:06,458 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: poll_exit
+2023-10-18 14:24:06,458 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: server_info
+2023-10-18 14:24:06,458 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: get_summary
+2023-10-18 14:24:06,458 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: poll_exit
+2023-10-18 14:24:06,458 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: sampled_history
+2023-10-18 14:24:06,458 DEBUG   SenderThread:11392 [sender.py:send_request():396] send_request: server_info
+2023-10-18 14:24:06,590 INFO    MainThread:11392 [wandb_run.py:_footer_history_summary_info():3464] rendering history
+2023-10-18 14:24:06,590 INFO    MainThread:11392 [wandb_run.py:_footer_history_summary_info():3496] rendering summary
+2023-10-18 14:24:06,590 INFO    MainThread:11392 [wandb_run.py:_footer_sync_info():3423] logging synced files
+2023-10-18 14:24:06,590 DEBUG   HandlerThread:11392 [handler.py:handle_request():144] handle_request: shutdown
+2023-10-18 14:24:06,590 INFO    HandlerThread:11392 [handler.py:finish():854] shutting down handler
+2023-10-18 14:24:07,463 INFO    WriterThread:11392 [datastore.py:close():298] close: C:\Users\19233436\PycharmProjects\MOGE\wandb\run-20231018_142317-0bncal06\run-0bncal06.wandb
+2023-10-18 14:24:07,601 INFO    SenderThread:11392 [sender.py:finish():1526] shutting down sender
+2023-10-18 14:24:07,601 INFO    SenderThread:11392 [file_pusher.py:finish():159] shutting down file pusher
+2023-10-18 14:24:07,602 INFO    SenderThread:11392 [file_pusher.py:join():164] waiting for file pusher

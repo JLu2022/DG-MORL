@@ -1,0 +1,16 @@
+{'env_id': 'deep-sea-treasure-v0', 'learning_rate': 0.0003, 'initial_epsilon': 0.01, 'epsilon_decay_steps:': None, 'batch_size': 128, 'per': True, 'gpi_pd': False, 'alpha_per': 0.6, 'min_priority': 0.01, 'tau': 1.0, 'num_nets': 2, 'clip_grand_norm': None, 'target_net_update_freq': 1000, 'gamma': 0.99, 'net_arch': [256, 256, 256, 256], 'dynamics_model_arch': [256, 256, 256], 'gradient_updates': 20, 'buffer_size': 1000000, 'learning_starts': 100, 'dyna': False, 'dynamics_rollout_len': 1, 'dynamics_uncertainty_threshold': 1.5, 'dynamics_rollout_starts': 5000, 'dynamics_rollout_freq': 250, 'dynamics_rollout_batch_size': 25000, 'dynamics_buffer_size': 100000, 'dynamics_normalize_inputs': False, 'dynamics_ensemble_size': 5, 'dynamics_num_elites': 2, 'real_ratio': 0.5, 'drop_rate': 0.01, 'layer_norm': True, 'seed': 42}
+Training starts... Let's roll!
+gpi_pd:False
+from 10 demos, find 11 corner weights
+w:[0. 1.]
+w:[0.212 0.788]
+w:[0.391 0.609]
+w:[0.47 0.53]
+w:[0.511 0.489]
+w:[0.541 0.459]
+w:[0.589 0.411]
+w:[0.666 0.334]
+w:[0.672 0.328]
+w:[0.704 0.296]
+w:[1. 0.]
+rews_demo_dict:{(0.6860699653625488, -2.970099985599518): [2, 2, 1], (7.876887321472168, -4.9009950160980225): [2, 2, 3, 1, 1], (10.827021598815918, -6.793465197086334): [2, 2, 3, 3, 1, 1, 1], (12.918425559997559, -8.648275256156921): [2, 2, 3, 3, 3, 1, 1, 1, 1], (13.794110298156738, -9.561792492866516): [2, 2, 3, 3, 3, 3, 1, 1, 1, 1], (14.560551643371582, -10.4661745429039): [2, 2, 3, 3, 3, 3, 3, 1, 1, 1, 1], (17.02741813659668, -13.99416446685791): [2, 2, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1], (17.459184646606445, -14.85422283411026): [2, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1], (18.69310760498047, -17.383137583732605): [2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1], (19.3843936920166, -19.027213096618652): [2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}

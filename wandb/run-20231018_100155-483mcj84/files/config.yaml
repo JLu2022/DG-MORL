@@ -1,0 +1,137 @@
+wandb_version: 1
+
+env_id:
+  desc: null
+  value: deep-sea-treasure-v0
+learning_rate:
+  desc: null
+  value: 0.0003
+initial_epsilon:
+  desc: null
+  value: 0.01
+'epsilon_decay_steps:':
+  desc: null
+  value: null
+batch_size:
+  desc: null
+  value: 128
+per:
+  desc: null
+  value: true
+gpi_pd:
+  desc: null
+  value: true
+alpha_per:
+  desc: null
+  value: 0.6
+min_priority:
+  desc: null
+  value: 0.01
+tau:
+  desc: null
+  value: 1.0
+num_nets:
+  desc: null
+  value: 2
+clip_grand_norm:
+  desc: null
+  value: null
+target_net_update_freq:
+  desc: null
+  value: 1000
+gamma:
+  desc: null
+  value: 0.99
+net_arch:
+  desc: null
+  value:
+  - 256
+  - 256
+  - 256
+  - 256
+dynamics_model_arch:
+  desc: null
+  value:
+  - 256
+  - 256
+  - 256
+gradient_updates:
+  desc: null
+  value: 20
+buffer_size:
+  desc: null
+  value: 1000000
+learning_starts:
+  desc: null
+  value: 100
+dyna:
+  desc: null
+  value: true
+dynamics_rollout_len:
+  desc: null
+  value: 1
+dynamics_uncertainty_threshold:
+  desc: null
+  value: 1.5
+dynamics_rollout_starts:
+  desc: null
+  value: 5000
+dynamics_rollout_freq:
+  desc: null
+  value: 250
+dynamics_rollout_batch_size:
+  desc: null
+  value: 25000
+dynamics_buffer_size:
+  desc: null
+  value: 100000
+dynamics_normalize_inputs:
+  desc: null
+  value: false
+dynamics_ensemble_size:
+  desc: null
+  value: 5
+dynamics_num_elites:
+  desc: null
+  value: 2
+real_ratio:
+  desc: null
+  value: 0.5
+drop_rate:
+  desc: null
+  value: 0.01
+layer_norm:
+  desc: null
+  value: true
+seed:
+  desc: null
+  value: 42
+algo:
+  desc: null
+  value: GPI-PD
+_wandb:
+  desc: null
+  value:
+    code_path: code/launch_experiment.py
+    python_version: 3.9.15
+    cli_version: 0.15.5
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1697619715.705763
+    t:
+      1:
+      - 1
+      - 2
+      - 3
+      - 55
+      3:
+      - 13
+      - 16
+      - 23
+      - 35
+      4: 3.9.15
+      5: 0.15.5
+      8:
+      - 3
+      - 5

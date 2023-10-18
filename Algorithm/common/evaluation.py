@@ -19,12 +19,42 @@ from Algorithm.common.performance_indicators import (
 from Algorithm.common.weights import equally_spaced_weights
 
 
+def eval_mo_demo(
+        env,
+        w=None,
+        scalarization=np.dot,
+        demo=None,
+        GAMMA = 0.99):
+    obs, _ = env.reset()
+    vec_return, disc_vec_return = np.zeros_like(w), np.zeros_like(w)
+    gamma = 1.0
+    for action in demo:
+        obs, r, terminated, truncated, info = env.step(action)
+        vec_return += r
+        disc_vec_return += gamma * r
+        gamma *= GAMMA
+
+    if w is None:
+        scalarized_return = scalarization(vec_return)
+        scalarized_discounted_return = scalarization(disc_vec_return)
+    else:
+        scalarized_return = scalarization(w, vec_return)
+        scalarized_discounted_return = scalarization(w, disc_vec_return)
+
+    return (
+        scalarized_return,
+        scalarized_discounted_return,
+        vec_return,
+        disc_vec_return,
+    )
+
+
 def eval_mo(
-    agent,
-    env,
-    w: Optional[np.ndarray] = None,
-    scalarization=np.dot,
-    render: bool = False,
+        agent,
+        env,
+        w: Optional[np.ndarray] = None,
+        scalarization=np.dot,
+        render: bool = False,
 ) -> Tuple[float, float, np.ndarray, np.ndarray]:
     """Evaluates one episode of the agent in the environment.
 
@@ -67,11 +97,11 @@ def eval_mo(
 
 
 def eval_mo_reward_conditioned(
-    agent,
-    env,
-    scalarization=np.dot,
-    w: Optional[np.ndarray] = None,
-    render: bool = False,
+        agent,
+        env,
+        scalarization=np.dot,
+        w: Optional[np.ndarray] = None,
+        render: bool = False,
 ) -> Tuple[float, float, np.ndarray, np.ndarray]:
     """Evaluates one episode of the agent in the environment. This makes the assumption that the agent is conditioned on the accrued reward i.e. for ESR agent.
 
@@ -139,12 +169,12 @@ def policy_evaluation_mo(agent, env, w: np.ndarray, rep: int = 5) -> Tuple[float
 
 
 def log_all_multi_policy_metrics(
-    current_front: List[np.ndarray],
-    hv_ref_point: np.ndarray,
-    reward_dim: int,
-    global_step: int,
-    n_sample_weights: int = 50,
-    ref_front: Optional[List[np.ndarray]] = None,
+        current_front: List[np.ndarray],
+        hv_ref_point: np.ndarray,
+        reward_dim: int,
+        global_step: int,
+        n_sample_weights: int = 50,
+        ref_front: Optional[List[np.ndarray]] = None,
 ):
     """Logs all metrics for multi-policy training.
 
@@ -214,12 +244,12 @@ def seed_everything(seed: int):
 
 
 def log_episode_info(
-    info: dict,
-    scalarization,
-    weights: Optional[np.ndarray],
-    global_timestep: int,
-    id: Optional[int] = None,
-    verbose: bool = True,
+        info: dict,
+        scalarization,
+        weights: Optional[np.ndarray],
+        global_timestep: int,
+        id: Optional[int] = None,
+        verbose: bool = True,
 ):
     """Logs information of the last episode from the info dict (automatically filled by the RecordStatisticsWrapper).
 
