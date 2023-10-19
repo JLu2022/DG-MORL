@@ -1,0 +1,266 @@
+{'env_id': 'deep-sea-treasure-v0', 'learning_rate': 0.0003, 'initial_epsilon': 0.01, 'epsilon_decay_steps:': None, 'batch_size': 128, 'per': True, 'gpi_pd': False, 'alpha_per': 0.6, 'min_priority': 0.01, 'tau': 1.0, 'num_nets': 2, 'clip_grand_norm': None, 'target_net_update_freq': 1000, 'gamma': 0.99, 'net_arch': [256, 256, 256, 256], 'dynamics_model_arch': [256, 256, 256], 'gradient_updates': 20, 'buffer_size': 1000000, 'learning_starts': 100, 'dyna': False, 'dynamics_rollout_len': 1, 'dynamics_uncertainty_threshold': 1.5, 'dynamics_rollout_starts': 5000, 'dynamics_rollout_freq': 250, 'dynamics_rollout_batch_size': 25000, 'dynamics_buffer_size': 100000, 'dynamics_normalize_inputs': False, 'dynamics_ensemble_size': 5, 'dynamics_num_elites': 2, 'real_ratio': 0.5, 'drop_rate': 0.01, 'layer_norm': True, 'seed': 42}
+Training starts... Let's roll!
+gpi_pd:False
+rews_demo_dict:{0: {'rew_vec': array([ 0.68606997, -2.97009999]), 'demo': [2, 2, 1], 'demo_horizon': 3}, 1: {'rew_vec': array([ 7.87688732, -4.90099502]), 'demo': [2, 2, 3, 1, 1], 'demo_horizon': 5}, 2: {'rew_vec': array([10.8270216, -6.7934652]), 'demo': [2, 2, 3, 3, 1, 1, 1], 'demo_horizon': 7}, 3: {'rew_vec': array([12.91842556, -8.64827526]), 'demo': [2, 2, 3, 3, 3, 1, 1, 1, 1], 'demo_horizon': 9}, 4: {'rew_vec': array([13.7941103 , -9.56179249]), 'demo': [2, 2, 3, 3, 3, 3, 1, 1, 1, 1], 'demo_horizon': 10}, 5: {'rew_vec': array([ 14.56055164, -10.46617454]), 'demo': [2, 2, 3, 3, 3, 3, 3, 1, 1, 1, 1], 'demo_horizon': 11}, 6: {'rew_vec': array([ 17.02741814, -13.99416447]), 'demo': [2, 2, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1], 'demo_horizon': 15}, 7: {'rew_vec': array([ 17.45918465, -14.85422283]), 'demo': [2, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1], 'demo_horizon': 16}, 8: {'rew_vec': array([ 18.6931076 , -17.38313758]), 'demo': [2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1], 'demo_horizon': 19}, 9: {'rew_vec': array([ 19.38439369, -19.0272131 ]), 'demo': [2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 'demo_horizon': 21}}
+CCS: [] CCS size: 0
+Next weight: [1. 0.]
+Next weight vector: [1. 0.]
+change_w_every_episode:True
+Training Step:1|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:2|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:3|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:4|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:5|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:6|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:7|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:8|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:9|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:10|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:11|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:12|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:13|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:14|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:15|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:16|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:17|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:18|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:19|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:20|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:21|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:22|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:23|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:24|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:25|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:26|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:27|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:28|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:29|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:30|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:31|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:32|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:33|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:34|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:35|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:36|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:37|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:38|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:39|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:40|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:41|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:42|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:43|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:44|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:45|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:46|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:47|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:48|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:49|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:50|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:51|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:52|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:53|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:54|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:55|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:56|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:57|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:58|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:59|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:60|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:61|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:62|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:63|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:64|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:65|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:66|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:67|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:68|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:69|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:70|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:71|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:72|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:73|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:74|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:75|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:76|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:77|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:78|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:79|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:80|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:81|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:82|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:83|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:84|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:85|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------
+Training Step:86|w:[1. 0.]	achieved EU:0.0	threshold EU:19.3843936920166|
+guide policy:[2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+----------------------------

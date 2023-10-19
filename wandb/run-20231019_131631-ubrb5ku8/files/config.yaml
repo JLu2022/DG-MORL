@@ -1,0 +1,257 @@
+wandb_version: 1
+
+env_id:
+  desc: null
+  value: deep-sea-treasure-v0
+learning_rate:
+  desc: null
+  value: 0.0003
+initial_epsilon:
+  desc: null
+  value: 0.01
+'epsilon_decay_steps:':
+  desc: null
+  value: null
+batch_size:
+  desc: null
+  value: 128
+per:
+  desc: null
+  value: true
+gpi_pd:
+  desc: null
+  value: false
+alpha_per:
+  desc: null
+  value: 0.6
+min_priority:
+  desc: null
+  value: 0.01
+tau:
+  desc: null
+  value: 1.0
+num_nets:
+  desc: null
+  value: 2
+clip_grand_norm:
+  desc: null
+  value: null
+target_net_update_freq:
+  desc: null
+  value: 1000
+gamma:
+  desc: null
+  value: 0.99
+net_arch:
+  desc: null
+  value:
+  - 256
+  - 256
+  - 256
+  - 256
+dynamics_model_arch:
+  desc: null
+  value:
+  - 256
+  - 256
+  - 256
+gradient_updates:
+  desc: null
+  value: 20
+buffer_size:
+  desc: null
+  value: 1000000
+learning_starts:
+  desc: null
+  value: 100
+dyna:
+  desc: null
+  value: false
+dynamics_rollout_len:
+  desc: null
+  value: 1
+dynamics_uncertainty_threshold:
+  desc: null
+  value: 1.5
+dynamics_rollout_starts:
+  desc: null
+  value: 5000
+dynamics_rollout_freq:
+  desc: null
+  value: 250
+dynamics_rollout_batch_size:
+  desc: null
+  value: 25000
+dynamics_buffer_size:
+  desc: null
+  value: 100000
+dynamics_normalize_inputs:
+  desc: null
+  value: false
+dynamics_ensemble_size:
+  desc: null
+  value: 5
+dynamics_num_elites:
+  desc: null
+  value: 2
+real_ratio:
+  desc: null
+  value: 0.5
+drop_rate:
+  desc: null
+  value: 0.01
+layer_norm:
+  desc: null
+  value: true
+seed:
+  desc: null
+  value: 42
+algo:
+  desc: null
+  value: GPI-LS
+_wandb:
+  desc: null
+  value:
+    code_path: code/launch_experiment.py
+    python_version: 3.9.15
+    cli_version: 0.15.5
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1697717791.287009
+    t:
+      1:
+      - 1
+      - 2
+      - 3
+      - 55
+      2:
+      - 1
+      - 2
+      - 3
+      - 55
+      3:
+      - 7
+      - 13
+      - 16
+      - 19
+      - 23
+      - 35
+      4: 3.9.15
+      5: 0.15.5
+      8:
+      - 3
+      - 5
+    m:
+    - 1: global_step
+    - 1: eval/scalarized_return
+      5: 1
+      6:
+      - 1
+    - 1: eval/scalarized_discounted_return
+      5: 1
+      6:
+      - 1
+    - 1: eval/vec_0
+      5: 1
+      6:
+      - 1
+    - 1: eval/discounted_vec_0
+      5: 1
+      6:
+      - 1
+    - 1: eval/vec_1
+      5: 1
+      6:
+      - 1
+    - 1: eval/discounted_vec_1
+      5: 1
+      6:
+      - 1
+    - 1: charts/timesteps_per_episode
+      5: 1
+      6:
+      - 1
+    - 1: charts/episode_time
+      5: 1
+      6:
+      - 1
+    - 1: metrics/scalarized_episode_return
+      5: 1
+      6:
+      - 1
+    - 1: metrics/discounted_scalarized_episode_return
+      5: 1
+      6:
+      - 1
+    - 1: metrics/episode_return_obj_0
+      5: 1
+      6:
+      - 1
+    - 1: metrics/disc_episode_return_obj_0
+      5: 1
+      6:
+      - 1
+    - 1: metrics/episode_return_obj_1
+      5: 1
+      6:
+      - 1
+    - 1: metrics/disc_episode_return_obj_1
+      5: 1
+      6:
+      - 1
+    - 1: metrics/policy_index
+      5: 1
+      6:
+      - 1
+    - 1: losses/grad_norm
+      5: 1
+      6:
+      - 1
+    - 1: metrics/mean_priority
+      5: 1
+      6:
+      - 1
+    - 1: metrics/max_priority
+      5: 1
+      6:
+      - 1
+    - 1: metrics/mean_td_error_w
+      5: 1
+      6:
+      - 1
+    - 1: losses/critic_loss
+      5: 1
+      6:
+      - 1
+    - 1: metrics/epsilon
+      5: 1
+      6:
+      - 1
+ref_point:
+  desc: null
+  value:
+  - 40.0
+known_front:
+  desc: null
+  value:
+  - - 0.7
+    - -1.0
+  - - 8.036819999999999
+    - -2.9701
+  - - 11.046854114999999
+    - -4.90099501
+  - - 13.180722091614
+    - -6.793465209301
+  - - 14.074186753395548
+    - -7.72553055720799
+  - - 14.856189580289515
+    - -8.64827525163591
+  - - 17.373143485636135
+    - -12.247897700103202
+  - - 17.81367676687905
+    - -13.12541872310217
+  - - 19.07265407252521
+    - -15.70568066160731
+  - - 19.777976146367074
+    - -17.383137616441324
