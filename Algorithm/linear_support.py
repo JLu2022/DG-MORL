@@ -163,25 +163,35 @@ class LinearSupport:
             self.queue.append((float("inf"), w))
 
     def get_support_weight_from_demo(self, demos, env):
-        rews_demo_dict = {}
         for i in range(len(demos)):
-            rews_demo_dict[i] = {"rew_vec": np.zeros(2), "demo": [], "demo_horizon": 0}
             _, discounted_return, _, disc_vec_return = eval_mo_demo(demo=demos[i],
                                                                     env=env,
                                                                     w=np.array([1, 0], dtype=float))
-            rews_demo_dict[i]["rew_vec"] = disc_vec_return
-            rews_demo_dict[i]["demo"] = demos[i]
-            rews_demo_dict[i]["demo_horizon"] = len(demos[i])
-            # self.ccs.append(disc_vec_return)
-        # corners = self.compute_corner_weights()
-        # for w in corners:
-        #     self.weight_support.append(w)
-        # demo_support_weights = sorted(corners, key=lambda x: x[0])
-        # print(f"from {len(demos)} demos, find {len(corners)} corner weights")
-        # for w in demo_support_weights:
-        #     print(f"w:{np.round_(w, 3)}")
-        corners = None
-        return corners, rews_demo_dict, None
+            self.ccs.append(disc_vec_return)
+        corners = self.compute_corner_weights()
+
+        def find_w_demo(w):
+            max_u = -np.inf
+            max_demo = demos[0]
+            for i in range(len(demos)):
+                _, _, _, discounted_vec_return = eval_mo_demo(demo=demos[i],
+                                                              env=env,
+                                                              w=np.array([1, 0], dtype=float))
+                u = np.dot(w, discounted_vec_return)
+                if u > max_u:
+                    max_u = u
+                    max_demo = demos[i]
+            return max_demo, max_u
+
+        demo_list = []
+        u_thresholds = []
+        for w in corners:
+            self.weight_support.append(w)
+            self.visited_weights.append(w)
+            demo, utility = find_w_demo(w)
+            demo_list.append(demo)
+            u_thresholds.append(utility)
+        return corners, demo_list, u_thresholds
 
     def next_weight(self, algo: str = "ols", gpi_agent=None, env=None, rep_eval=1
                     ):
@@ -274,7 +284,7 @@ class LinearSupport:
             print(f"Adding value: {value} to CCS.")
 
         self.iteration += 1
-        self.visited_weights.append(w)
+        # self.visited_weights.append(w)
 
         if self.is_dominated(value):
             if self.verbose:
@@ -370,17 +380,41 @@ class LinearSupport:
         """
         removed_indx = []
         for i in reversed(range(len(self.ccs))):
-            weights_optimal = [
-                w
-                for w in self.visited_weights
-                if np.dot(self.ccs[i], w) == self.max_scalarized_value(w) and np.dot(value, w) < np.dot(self.ccs[i], w)
-            ]
+            weights_optimal = []
+            for w in self.visited_weights:
+                # find the corresponding CCS point to w
+                if np.dot(self.ccs[i], w) == self.max_scalarized_value(w):
+                    # if this point is better than the input value based on this w,
+                    # it means this the optimal value for this w is found
+                    if np.dot(value, w) <= np.dot(self.ccs[i], w):
+                        weights_optimal.append(w)
             if len(weights_optimal) == 0:
                 print("removed value", self.ccs[i])
                 removed_indx.append(i)
                 self.ccs.pop(i)
                 self.weight_support.pop(i)
         return removed_indx
+
+    def JS_add_solution(self, value, w, demo):
+        demos = []
+        if self.verbose:
+            print(f"Adding value: {value} to CCS.")
+
+        if self.is_dominated(value):
+            if self.verbose:
+                print(f"Value {value} is dominated. Discarding.")
+            return [len(self.ccs)]
+
+        removed_indx = self.remove_obsolete_values(value)
+
+        # self.ccs.append(value)
+        self.weight_support.append(w)
+        demos.append(demo)
+
+        return removed_indx
+
+    def JS_remove_obsolete_values(self):
+        pass
 
     def max_value_lp(self, w_new: np.ndarray) -> float:
         """Returns an upper-bound for the maximum value of the scalarized objective.
@@ -484,6 +518,8 @@ class LinearSupport:
         if len(self.ccs) == 0:
             return False
         for w in self.visited_weights:
+            # print(f"visited_w:{self.visited_weights}")
+            # print(f"w:{w}np.dot(value, w):{np.dot(value, w)}self.max_scalarized_value(w):{self.max_scalarized_value(w)}")
             if np.dot(value, w) >= self.max_scalarized_value(w):
                 return False
         return True
@@ -553,12 +589,7 @@ if __name__ == "__main__":
     eval_env = mo_gym.make("deep-sea-treasure-v0")
     num_objectives = 2
     ols = LinearSupport(num_objectives=num_objectives, epsilon=0.0001, verbose=True)
-    c = ols.get_support_weight_from_demo(demos=action_demos, env=eval_env)
-    # ols.train(total_timesteps=1000, timesteps_per_iteration=10)
-    # sorted_vectors = sorted(ols.ccs, key=lambda x: x[1])
-    # weight_support = sorted(ols.weight_support, key=lambda x: x[1])
-    # for s in sorted_vectors:
-    #     print(f"solution:{s}")
-    # for w in weight_support:
-    #     print(f"w:{np.round_(w, 3)}")
-    # # print(ols.ccs)
+    corners, demos, u_threshold = ols.get_support_weight_from_demo(demos=action_demos, env=eval_env)
+    print(corners)
+    for w_d in zip(corners, demos, u_threshold):
+        print(f"corner_w:{w_d[0]}\tU:{w_d[2]}\tdemo:{w_d[1]}")

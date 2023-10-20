@@ -20,7 +20,6 @@ from mo_gymnasium.utils import MORecordEpisodeStatistics
 from Algorithm.common.evaluation import seed_everything
 from Algorithm.gpi_ls import GPILS, GPIPD
 
-
 ALGOS = {
 
     "gpi_pd_discrete": GPIPD,
@@ -64,9 +63,11 @@ def parse_args():
     parser.add_argument("--algo", type=str, help="Name of the algorithm to run", choices=ALGOS.keys(), required=True)
     parser.add_argument("--env-id", type=str, help="MO-Gymnasium id of the environment to run", required=True)
     parser.add_argument("--num-timesteps", type=int, help="Number of timesteps to train for", required=True)
-    parser.add_argument("--gamma", type=float, help="Discount factor to apply to the environment and algorithm", required=True)
+    parser.add_argument("--gamma", type=float, help="Discount factor to apply to the environment and algorithm",
+                        required=True)
     parser.add_argument(
-        "--ref-point", type=float, nargs="+", help="Reference point to use for the hypervolume calculation", required=True
+        "--ref-point", type=float, nargs="+", help="Reference point to use for the hypervolume calculation",
+        required=True
     )
     parser.add_argument("--seed", type=int, help="Random seed to use", default=42)
     parser.add_argument("--wandb-entity", type=str, help="Wandb entity to use", required=False)
@@ -194,13 +195,31 @@ def main():
         print(algo.get_config())
 
         print("Training starts... Let's roll!")
-        algo.train(
+        # algo.train(
+        #     total_timesteps=args.num_timesteps,
+        #     eval_env=eval_env,
+        #     ref_point=np.array(args.ref_point),
+        #     known_pareto_front=known_pareto_front,
+        #     **args.train_hyperparams,
+        # )
+        action_demo_1 = [1]  # 0.7
+        action_demo_2 = [3, 1, 1]  # 8.2
+        action_demo_3 = [3, 3, 1, 1, 1]  # 11.5
+        action_demo_4 = [3, 3, 3, 1, 1, 1, 1]  # 14.0
+        action_demo_5 = [3, 3, 3, 3, 1, 1, 1, 1]  # 15.1
+        action_demo_6 = [3, 3, 3, 3, 3, 1, 1, 1, 1]  # 16.1
+        action_demo_7 = [3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1]  # 19.6
+        action_demo_8 = [3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1]  # 20.3
+        action_demo_9 = [3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 22.4
+        action_demo_10 = [3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 23.7
+
+        demos = [action_demo_1, action_demo_2, action_demo_3, action_demo_4, action_demo_5, action_demo_6,
+                 action_demo_7, action_demo_8, action_demo_9, action_demo_10]
+        algo.JS_train(
+            demos=demos,
             total_timesteps=args.num_timesteps,
             eval_env=eval_env,
-            ref_point=np.array(args.ref_point),
-            known_pareto_front=known_pareto_front,
-            **args.train_hyperparams,
-        )
+            **args.train_hyperparams, )
 
 
 if __name__ == "__main__":

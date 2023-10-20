@@ -1,4 +1,5 @@
 """GPI-PD algorithm."""
+import copy
 import os
 import random
 from itertools import chain
@@ -98,13 +99,13 @@ class GPIPD(MOPolicy, MOAgent):
             net_arch: List = [256, 256, 256, 256],
             num_nets: int = 2,
             batch_size: int = 128,
-            learning_starts: int = 100,
+            learning_starts: int = 10,
             gradient_updates: int = 20,
             gamma: float = 0.99,
             max_grad_norm: Optional[float] = None,
-            use_gpi: bool = True,
+            use_gpi: bool = False,
             dyna: bool = True,
-            per: bool = True,
+            per: bool = False,
             gpi_pd: bool = True,
             alpha_per: float = 0.6,
             min_priority: float = 0.01,
@@ -415,6 +416,76 @@ class GPIPD(MOPolicy, MOAgent):
                     "dynamics/imagined_transitions": num_added_imagined_transitions,
                     "global_step": self.global_step,
                 },
+            )
+    def JS_update(self, weight: th.Tensor):
+        """Update the parameters of the networks."""
+        critic_losses = []
+        for g in range(self.gradient_updates if self.global_step >= self.dynamics_rollout_starts else 1):
+            # print(self._sample_batch_experiences())
+            s_obs, s_actions, s_rewards, s_next_obs, s_dones = self._sample_batch_experiences()
+
+            if len(self.weight_support) > 1:
+                s_obs, s_actions, s_rewards, s_next_obs, s_dones = (
+                    s_obs.repeat(2, 1),
+                    s_actions.repeat(2, 1),
+                    s_rewards.repeat(2, 1),
+                    s_next_obs.repeat(2, 1),
+                    s_dones.repeat(2, 1),
+                )
+                w = th.vstack([weight for _ in range(s_obs.size(0))])
+            else:
+                w = weight.repeat(s_obs.size(0), 1)
+
+            with th.no_grad():
+                # Compute min_i Q_i(s', a, w) . w
+                next_q_values = th.stack([target_psi_net(s_next_obs, w) for target_psi_net in self.target_q_nets])
+                scalarized_next_q_values = th.einsum("nbar,br->nba", next_q_values, w)  # q_i(s', a, w)
+                min_inds = th.argmin(scalarized_next_q_values, dim=0)
+                min_inds = min_inds.reshape(1, next_q_values.size(1), next_q_values.size(2), 1).expand(
+                    1, next_q_values.size(1), next_q_values.size(2), next_q_values.size(3)
+                )
+                next_q_values = next_q_values.gather(0, min_inds).squeeze(0)
+
+                # Compute max_a Q(s', a, w) . w
+                max_q = th.einsum("br,bar->ba", w, next_q_values)
+                max_acts = th.argmax(max_q, dim=1)
+
+                q_targets = next_q_values.gather(
+                    1, max_acts.long().reshape(-1, 1, 1).expand(next_q_values.size(0), 1, next_q_values.size(2))
+                )
+                target_q = q_targets.reshape(-1, self.reward_dim)
+                target_q = s_rewards + (1 - s_dones) * self.gamma * target_q
+
+            losses = []
+            for psi_net in self.q_nets:
+                psi_value = psi_net(s_obs, w)
+                psi_value = psi_value.gather(
+                    1, s_actions.long().reshape(-1, 1, 1).expand(psi_value.size(0), 1, psi_value.size(2))
+                )
+                psi_value = psi_value.reshape(-1, self.reward_dim)
+
+                td_error = psi_value - target_q
+                loss = huber(td_error.abs(), min_priority=self.min_priority)
+                losses.append(loss)
+
+            critic_loss = (1 / self.num_nets) * sum(losses)
+            self.q_optim.zero_grad()
+            critic_loss.backward()
+
+            if self.max_grad_norm is not None:
+                for psi_net in self.q_nets:
+                    th.nn.utils.clip_grad_norm_(psi_net.parameters(), self.max_grad_norm)
+            self.q_optim.step()
+            critic_losses.append(critic_loss.item())
+
+        if self.tau != 1 or self.global_step % self.target_net_update_freq == 0:
+            for psi_net, target_psi_net in zip(self.q_nets, self.target_q_nets):
+                polyak_update(psi_net.parameters(), target_psi_net.parameters(), self.tau)
+
+        if self.epsilon_decay_steps is not None:
+            self.epsilon = linearly_decaying_value(
+                self.initial_epsilon, self.epsilon_decay_steps, self.global_step, self.learning_starts,
+                self.final_epsilon
             )
 
     def update(self, weight: th.Tensor):
@@ -822,7 +893,6 @@ class GPIPD(MOPolicy, MOAgent):
             num_eval_episodes_for_front: int = 5,
             timesteps_per_iter: int = 4000,
             weight_selection_algo: str = "gpi-ls",
-            prior_knowledge_available=True
     ):
         """Train agent.
         Args:
@@ -843,23 +913,24 @@ class GPIPD(MOPolicy, MOAgent):
         linear_support = LinearSupport(num_objectives=self.reward_dim,
                                        epsilon=0.0 if weight_selection_algo == "ols" else None)
 
-        if prior_knowledge_available:
-            action_demo_1 = [2, 2, 1]  # 0.7
-            action_demo_2 = [2, 2, 3, 1, 1]  # 8.2
-            action_demo_3 = [2, 2, 3, 3, 1, 1, 1]  # 11.5
-            action_demo_4 = [2, 2, 3, 3, 3, 1, 1, 1, 1]  # 14.0
-            action_demo_5 = [2, 2, 3, 3, 3, 3, 1, 1, 1, 1]  # 15.1
-            action_demo_6 = [2, 2, 3, 3, 3, 3, 3, 1, 1, 1, 1]  # 16.1
-            action_demo_7 = [2, 2, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1]  # 19.6
-            action_demo_8 = [2, 2, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1]  # 20.3
-            action_demo_9 = [2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 22.4
-            action_demo_10 = [2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 23.7
+        if True:
+            action_demo_1 = [1]  # 0.7
+            action_demo_2 = [3, 1, 1]  # 8.2
+            action_demo_3 = [3, 3, 1, 1, 1]  # 11.5
+            action_demo_4 = [3, 3, 3, 1, 1, 1, 1]  # 14.0
+            action_demo_5 = [3, 3, 3, 3, 1, 1, 1, 1]  # 15.1
+            action_demo_6 = [3, 3, 3, 3, 3, 1, 1, 1, 1]  # 16.1
+            action_demo_7 = [3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1]  # 19.6
+            action_demo_8 = [3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1]  # 20.3
+            action_demo_9 = [3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 22.4
+            action_demo_10 = [3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 23.7
             action_demos = [action_demo_1, action_demo_2, action_demo_3, action_demo_4, action_demo_5, action_demo_6,
                             action_demo_7, action_demo_8, action_demo_9, action_demo_10]
-            _, rews_demo_dict, _ = linear_support.get_support_weight_from_demo(demos=action_demos,
-                                                                               env=eval_env)
+            corner_ws, rews_demo_dict, _ = linear_support.get_support_weight_from_demo(demos=action_demos,
+                                                                                       env=eval_env)
             print(f"rews_demo_dict:{rews_demo_dict}")
-        weight_history = []
+
+        weight_history = corner_ws
 
         eval_weights = equally_spaced_weights(self.reward_dim, n=num_eval_weights_for_front)
 
@@ -917,6 +988,165 @@ class GPIPD(MOPolicy, MOAgent):
             self.save(filename=f"GPI-PD {weight_selection_algo} iter={iter}", save_replay_buffer=False)
         np.save("../evaluation/expected_u/JSMORL_EUs_DST.npy", EUs)
         self.close_wandb()
+
+    def JS_train_iteration(self,
+                           total_timesteps: int,
+                           eval_env: Optional[gym.Env] = None,
+                           eval_freq: int = 10,
+                           corners=None,
+                           demos=None,
+                           u_thresholds=None):
+        """Train the agent for one iteration.
+
+        Args:
+            total_timesteps (int): Number of timesteps to train for
+            weight (np.ndarray): Weight vector
+            weight_support (List[np.ndarray]): Weight support set
+            change_w_every_episode (bool): Whether to change the weight vector at the end of each episode
+            reset_num_timesteps (bool): Whether to reset the number of timesteps
+            eval_env (Optional[gym.Env]): Environment to evaluate on
+            eval_freq (int): Number of timesteps between evaluations
+            reset_learning_starts (bool): Whether to reset the learning starts
+        """
+
+        self.police_indices = []
+
+        """
+        1. For each guide policy, grab the experience
+        2. Do and further explore
+        3. Do iterative evaluation, if any explore policy meet the criteria, roll-out the guide policy, if any explore 
+        policy decay, roll-back the guide policy, do this until all guide policy goes to empty.
+        4. Save the model as a good pre-train start point.
+        5*. further train with gpi.
+        """
+        guide_policy_scopes = []
+        for demo in demos:
+            guide_policy_scopes.append(len(demo) - 1)
+        guide_policy_scopes = np.array(guide_policy_scopes)
+        max_guide_policy_scopes = copy.deepcopy(guide_policy_scopes)
+        try_out = 0
+        while sum(guide_policy_scopes) > 0:  # change to random sample a tuple!!
+            try_out += 1
+            print("------------------------------------------------------------------")
+            idx = np.random.randint(0, len(corners))
+            print(f"try_out:{try_out}.. start\t guide_scopes:{guide_policy_scopes}\tidx:{idx}\n"
+                  f"demo:{demos}")
+
+            w = corners[idx]
+            demo = demos[idx]
+            guide_policy_scope = guide_policy_scopes[idx]
+            obs, info = self.env.reset()
+            guide_policy_pointer = 0
+            tensor_w = th.tensor(w).float().to(self.device)
+
+            # if self.per and len(self.replay_buffer) > 0:
+            #     self._reset_priorities(tensor_w)
+
+            for i in range(1, total_timesteps + 1):
+            # for i in range(1, 1000):
+                self.global_step += 1
+                if guide_policy_scope > 0 and guide_policy_pointer < guide_policy_scope:
+                    # print(f"policy_pointer:{guide_policy_pointer}\tscope:{guide_policy_scope}\tlen:{len(demo)}\t"
+                    #       f"lendemo[:guide_policy_scope]:{len(demo[:guide_policy_scope])}")
+                    action = demo[:guide_policy_scope][guide_policy_pointer]
+                    # print(f"action:{action}")
+                    guide_policy_pointer += 1
+                else:
+                    action = self._act(th.as_tensor(obs).float().to(self.device), tensor_w)
+
+                next_obs, vec_reward, terminated, truncated, info = self.env.step(action)
+                self.replay_buffer.add(obs, action, vec_reward, next_obs, terminated)
+
+                if self.global_step >= self.learning_starts:
+                    self.JS_update(tensor_w)
+
+                if self.global_step % eval_freq == 0:
+                    rolling_ops = []
+                    utility_losses = []
+                    for i in range(len(corners)):
+                        w = corners[i]
+                        u_threshold = u_thresholds[i]
+                        _, u, _, _ = self.policy_eval(eval_env,
+                                                      weights=w,
+                                                      log=self.log)
+                        # print(f"u:{u}\tu_thres:{u_threshold}")
+                        utility_loss = abs(u-u_threshold)
+                        utility_losses.append(utility_loss)
+                        if u >= u_threshold:
+                            print(f"@:{w} -- reach threshold")
+                            rolling_ops.append(-1)  # roll out
+                        else:
+                            rolling_ops.append(1)
+                    rolling_ops = np.array(rolling_ops)
+                    guide_policy_scopes += rolling_ops
+                    guide_policy_scopes = np.minimum(guide_policy_scopes, max_guide_policy_scopes)
+                    print(guide_policy_scopes)
+                    guide_policy_scope = guide_policy_scopes[idx]
+                    print(f"guide_policy_scope:{guide_policy_scope}\t demo:{demos[idx]}\tw_c:{corners[idx]}")
+                    print(f"utility loss:{np.average(utility_losses)}")
+                    if guide_policy_scope == 0:
+                        break
+
+                if terminated or truncated:
+                    guide_policy_pointer = 0
+                    obs, _ = self.env.reset()
+
+                else:
+                    obs = next_obs
+
+    def JS_train(self,
+                 demos,
+                 total_timesteps: int,
+                 eval_env,
+                 num_eval_weights_for_front: int = 100,
+                 num_eval_episodes_for_front: int = 5,
+                 timesteps_per_iter: int = 4000,
+                 weight_selection_algo: str = "gpi-ls", ):
+        """Train agent.
+            Args:
+            total_timesteps (int): Number of timesteps to train for.
+            eval_env (gym.Env): Environment to evaluate on.
+            num_eval_weights_for_front: Number of weights to evaluate for the Pareto front.
+            num_eval_episodes_for_front: number of episodes to run when evaluating the policy.
+            timesteps_per_iter (int): Number of timesteps to train for per iteration.
+            weight_selection_algo (str): Weight selection algorithm to use.
+        """
+        print(f"gpi_pd:{self.gpi_pd}")
+        EUs = []
+        max_iter = total_timesteps // timesteps_per_iter
+        linear_support = LinearSupport(num_objectives=self.reward_dim,
+                                       epsilon=0.0 if weight_selection_algo == "ols" else None)
+
+        corners, demos, u_thresholds = linear_support.get_support_weight_from_demo(demos=demos, env=eval_env)
+        corners = np.array([[1.,0.]])
+        demos = [[3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+        u_thresholds = [[19.77797698974607]]
+        eval_weights = equally_spaced_weights(self.reward_dim, n=num_eval_weights_for_front)
+
+        for iter in range(1, max_iter + 1):
+            self.set_weight_support(linear_support.get_weight_support())
+
+            self.JS_train_iteration(
+                total_timesteps=timesteps_per_iter,
+                corners=corners,
+                demos=demos,
+                u_thresholds=u_thresholds,
+                eval_env=eval_env,
+                eval_freq=10,
+            )
+
+            print(" ================================================== ")
+            # gpi_returns_test_tasks = [
+            #     policy_evaluation_mo(self, eval_env, ew, rep=num_eval_episodes_for_front)[3] for ew in eval_weights
+            # ]
+            # This is the EU computed in the paper
+            # mean_gpi_returns_test_tasks = np.mean(
+            #     [np.dot(ew, q) for ew, q in zip(eval_weights, gpi_returns_test_tasks)], axis=0
+            # )
+            # print(f"mean_gpi_returns_test_tasks:{mean_gpi_returns_test_tasks}")
+            # EUs.append(mean_gpi_returns_test_tasks)
+
+        np.save("../evaluation/expected_u/JSMORL_EUs_DST.npy", EUs)
 
 
 class GPILS(GPIPD):
