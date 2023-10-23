@@ -141,7 +141,7 @@ class DeepSeaTreasure(AbstractSimulator):
     def step(self, action, episode=1001, d_goal=None):  # 0:up 1:down 2:left 3:right
         self.img_map = [list(self.background_map[i]) for i in range(self.num_of_row)]
         rewards = np.zeros(2)
-        rewards[0] = -1
+        rewards[1] = -1
         treasure_reward = 0
         d_shaping_reward = 0
         terminal = False
@@ -163,8 +163,8 @@ class DeepSeaTreasure(AbstractSimulator):
             d_shaping_reward = manhattan_goal - manhattan_goal_prime
 
         if not self.background_map[self.row][self.col] == 0 and not self.background_map[self.row][self.col] == -1:
-            rewards[1] = self.background_map[self.row][self.col]
-            treasure_reward = rewards[1]
+            rewards[0] = self.background_map[self.row][self.col]
+            treasure_reward = rewards[0]
             terminal = True
         if self.energy <= 0:
             terminal = True
@@ -218,9 +218,9 @@ class DeepSeaTreasure(AbstractSimulator):
         col = player_pos[1]
         rewards = np.zeros(2)
         if not self.background_map[row][col] == 0 and not self.background_map[row][col] == -1:
-            rewards += np.array([-1, self.background_map[row][col]])
+            rewards += np.array([self.background_map[row][col]],-1)
         else:
-            rewards += np.array([-1, 0])
+            rewards += np.array([0,-1])
         return rewards
 
     def get_settings(self, action=None):
@@ -254,12 +254,12 @@ class DeepSeaTreasure(AbstractSimulator):
             row = pos[0]
             col = pos[1]
             if not self.background_map[row][col] == 0 and not self.background_map[row][col] == -1:
-                rewards += gamma * np.array([-1, self.background_map[row][col]])
-                pure_rewards += np.array([-1, self.background_map[row][col]])
+                rewards += gamma * np.array([self.background_map[row][col]],-1)
+                pure_rewards += np.array([self.background_map[row][col]],-1)
                 # print(f"reach:{self.background_map[row][col]}")
             else:
-                rewards += gamma * np.array([-1, 0])
-                pure_rewards += np.array([-1, 0])
+                rewards += gamma * np.array([ 0,-1])
+                pure_rewards += np.array([0,-1])
             gamma *= GAMMA
         utility = np.dot(rewards, pref_w)
         return utility, pure_rewards

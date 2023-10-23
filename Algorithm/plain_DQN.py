@@ -88,13 +88,13 @@ class ConditionedDQNAgent:
         x = Concatenate()([state_input, weight_input])
         x = Dense(256, activation='relu')(x)
         x = Dropout(0.2, name="drop_0")(x)
-        x = LayerNormalization(axis=-1)(x)
+        # x = LayerNormalization(axis=-1)(x)
         x = Dense(256, activation='relu')(x)
         x = Dropout(0.2, name="drop_1")(x)
-        x = LayerNormalization(axis=-1)(x)
+        # x = LayerNormalization(axis=-1)(x)
         x = Dense(256, activation='relu')(x)
         x = Dropout(0.2, name="drop_2")(x)
-        x = LayerNormalization(axis=-1)(x)
+        # x = LayerNormalization(axis=-1)(x)
         x = Dense(self.output_size)(x)
         outputs = x
 
@@ -105,16 +105,17 @@ class ConditionedDQNAgent:
         model.compile(optimizer=self.optimizer, loss=self.loss_fn)
         return model
 
-    def epsilon_greedy_policy(self, state, weights, epsilon, evaluation=True):
+    def epsilon_greedy_policy(self, state, weights, epsilon, evaluation=False):
         if np.random.rand() < epsilon:
             return random.choice(self.actions)
         else:
             # print(state)
             # print(weights)
             Q_values = self.model([state[np.newaxis], weights[np.newaxis]], training=False)
-            # if evaluation:
-            #     print(f"state:{state}\tQ:{Q_values}")
+
             action = np.argmax(Q_values)
+            if evaluation:
+                print(f"state:{np.round_(state,3)}\tQ:{np.round_(Q_values,3)}\taction:{action}")
             return action
 
     def play_one_step(self, state, epsilon, weights):
@@ -287,9 +288,9 @@ class ConditionedDQNAgent:
             state = np.array(state)  # Convert to float32 for tf
 
             episode_reward = 0
-            rewards_vec = np.zeros(2)
+            rewards_vec = np.zeros(3)
             # weights = pref_space.sample()
-            weights = np.array([0, 1])
+            weights = np.array([0.34, 0.36, 0.3])
             while True:
                 state, reward, done, rewards = self.play_one_step(np.array(state), eps, weights)
                 steps += 1
@@ -303,8 +304,9 @@ class ConditionedDQNAgent:
                     self.target_model.set_weights(self.model.get_weights())
                 if step % save_per == 0 and step >= save_per and self.checkpoint:
                     self.model.save(self.model_path + str(step))
-                # u = self.play_a_episode(env=eval_env, pref_w=np.array([0,1]), agent=self,demo=[])
-                # print(f"tryout_u:{u}")
+                u = self.play_a_episode(env=eval_env, pref_w=np.array([0,1]), agent=self,demo=[])
+                print(f"tr"
+                      f"yout_u:{u}")
             if step % show_detail_per == 0:
                 if sum(self.action_list) > 0:
                     indices_of_one = [i for i, x in enumerate(self.action_list) if x == 1]
@@ -317,8 +319,8 @@ class ConditionedDQNAgent:
                       f"Epsilon:{np.round(eps, 2)}\t"
                       f"Actions:{sum(self.action_list)}\t"
                       f"@{indices_of_one}")
-        u = self.play_a_episode(env=eval_env, pref_w=np.array([0., 1.]), agent=self, demo=[])
-        print(f"utility:{u}")
+        # u = self.play_a_episode(env=eval_env, pref_w=np.array([0., 1.]), agent=self, demo=[])
+        # print(f"utility:{u}")
 
     def play_a_episode(self, env, pref_w, agent, demo):
         disc_return = 0
@@ -336,7 +338,7 @@ class ConditionedDQNAgent:
                 action = demo[action_pointer]
                 action_pointer += 1
             else:
-                action = agent.epsilon_greedy_policy(state, weights=pref_w, epsilon=0, evaluation=False)
+                action = agent.epsilon_greedy_policy(state, weights=pref_w, epsilon=0, evaluation=True)
             traj_actions.append(action)
             n_state, rewards, terminal, _, _ = env.step(action)
             n_state = np.array(n_state)
@@ -375,9 +377,10 @@ if __name__ == '__main__':
     corners = np.array([[0.34, 0.36, 0.3]])
     demos = [[2, 1, 3, 3, 3, 5, 5, 4, 0, 0, 1, 1, 1, 1, 1, 3, 3, 3, 2, 2, 1, 3]]
     u_thresholds = [[-0.0424]]
-    agent.jsRL_train(total_timesteps=4000,
-                     eval_env=eval_env,
-                     eval_freq=100,
-                     corners=corners,
-                     demos=demos,
-                     u_thresholds=u_thresholds)
+    # agent.jsRL_train(total_timesteps=4000,
+    #                  eval_env=eval_env,
+    #                  eval_freq=100,
+    #                  corners=corners,
+    #                  demos=demos,
+    #                  u_thresholds=u_thresholds)
+    agent.train_model(steps = 12000, eval_env=eval_env)
