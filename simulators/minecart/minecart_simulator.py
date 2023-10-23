@@ -14,7 +14,7 @@ from gymnasium.spaces import Box, Discrete
 from gymnasium.utils import EzPickle
 from scipy.spatial import ConvexHull
 import keyboard
-from preference_space import PreferenceSpace
+# from preference_space import PreferenceSpace
 
 EPS_SPEED = 0.001  # Minimum speed to be considered in motion
 HOME_X = 0.0
@@ -605,12 +605,18 @@ class Minecart(gym.Env, EzPickle):
 
     def calculate_utility(self, demo, pref_w):
         self.reset()
+        self.render()
         rewards = np.zeros(3)
         gamma = 1
         for action in demo:
+
             _, reward, _, _, _ = self.step(action=action)
+            for i in range(10000000):
+                a = i
+            print(f"reward:{reward}")
             rewards += gamma * reward
             gamma *= GAMMA
+        print(f"pref_w:{pref_w}\trewards:{rewards}")
         utility = np.dot(rewards, pref_w)
         return utility, rewards
 
@@ -880,17 +886,20 @@ if __name__ == "__main__":
     gamma = 1
 
     key_states = {}
-    action_list = []
+
     utility_dict = {}
     pref_space = PreferenceSpace()
     pref_list = pref_space.iterate()
     for pref_w in pref_list:
+        # utility_dict[tuple(pref_w)] = {"utility":-np.inf, "mode":"None Mode", ""}
         utility_dict[tuple(pref_w)] = [-np.inf]
         utility_dict[tuple(pref_w)].append("None Mode")
         utility_dict[tuple(pref_w)].append(())
     behaviour_modes = ["mean_agent", "ore_1_agent", "ore_2_agent","quick_ore_1_agent","quick_ore_2_agent","balance_agent","quick_balance_agent"]
+    # behaviour_modes = ["quick_balance_agent"]
     utility = 0
     for behaviour_mode in behaviour_modes:
+        action_list = []
         env.reset()
         print(f"MODE:{behaviour_mode}...start")
         terminated = False
@@ -930,10 +939,12 @@ if __name__ == "__main__":
                 key_states.pop(event.name, None)
 
         for pref_w in pref_list:
-            if np.dot(pref_w, rewards) > utility_dict[tuple(pref_w)][0]:
+            # if np.dot(pref_w, rewards) > utility_dict[tuple(pref_w)][0]:
+            if True:
                 utility_dict[tuple(pref_w)][0] = np.dot(pref_w, rewards)
                 utility_dict[tuple(pref_w)][1] = behaviour_mode
                 utility_dict[tuple(pref_w)][2] = tuple(action_list)
+        print(f"action list:{action_list}")
             # print(f"w:{pref_w}\tutility:{np.dot(pref_w, rewards)}")
         # env.reset()
     for k, v in utility_dict.items():

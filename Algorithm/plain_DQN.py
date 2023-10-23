@@ -10,16 +10,17 @@ from collections import deque  # Used for replay buffer and reward tracking
 import matplotlib.pyplot as plt
 from datetime import datetime  # Used for timing script
 from Algorithm.common.morl_algorithm import MOAgent, MOPolicy
-from Algorithm.linear_support import LinearSupport
+# from Algorithm.linear_support import LinearSupport
 from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
+from simulators.minecart.minecart_simulator import Minecart
 
 SEED = 42
 DEBUG = False
 
 BATCH_SIZE = 64
-REPLAY_MEMORY_SIZE = 1000
+REPLAY_MEMORY_SIZE = 6000
 
-GAMMA = 0.99
+GAMMA = 0.98
 
 TRAINING_EPISODES = 5000
 EXPLORATION_RESTARTS = 0
@@ -27,7 +28,7 @@ EXPLORATION_RESTARTS = 0
 EPSILON_START = 1
 EPSILON_END = 0.01
 EPSILON_DECAY = 1 / (TRAINING_EPISODES * 0.98)
-COPY_TO_TARGET_EVERY = 2000  # Steps
+COPY_TO_TARGET_EVERY = 200  # Steps
 START_TRAINING_AFTER = 100  # Episodes
 FRAME_STACK_SIZE = 3
 NUM_WEIGHTS = 2
@@ -60,17 +61,20 @@ class ReplayMemory(deque):
 class ConditionedDQNAgent:
     def __init__(self, env, model_path=None, checkpoint=True):
         self.global_step = 0
-        self.dynamic_reward_shaping_optimizer = Adam(learning_rate=1e-3)
+        self.dynamic_reward_shaping_optimizer = Adam(learning_rate=1e-4)
         self.env = env
-        self.actions = [i for i in range(self.env.action_space)]
+        # self.actions = [i for i in range(self.env.action_space)]
+        self.actions = range(5)
         self.gamma = GAMMA  # Discount
         self.eps0 = EPSILON_START  # Epsilon greedy init
         self.model_path = model_path
         self.batch_size = BATCH_SIZE
         self.replay_memory = ReplayMemory(maxlen=REPLAY_MEMORY_SIZE)
         self.checkpoint = checkpoint
-        self.input_size = self.env.observation_space
-        self.output_size = self.env.action_space
+        # self.input_size = self.env.observation_space
+        self.input_size = 7
+        # self.output_size = self.env.action_space
+        self.output_size = 5
         # Build both models
         self.model = self.build_model()
         self.target_model = self.build_model()
@@ -79,7 +83,7 @@ class ConditionedDQNAgent:
 
     def build_model(self):
         # Define Layers
-        weight_input = Input(shape=(2,))
+        weight_input = Input(shape=(3,))
         state_input = Input(shape=self.input_size)
         x = Concatenate()([state_input, weight_input])
         x = Dense(256, activation='relu')(x)
@@ -152,7 +156,7 @@ class ConditionedDQNAgent:
     def jsRL_train(self,
                    total_timesteps: int,
                    eval_env=None,
-                   eval_freq: int = 10,
+                   eval_freq: int = 100,
                    corners=None,
                    demos=None,
                    u_thresholds=None):
@@ -201,6 +205,7 @@ class ConditionedDQNAgent:
             obs = np.array(obs)
             guide_policy_pointer = 0
             states_traj = [obs]
+            action_traj = []
             for i in range(1, total_timesteps + 1):
                 explore_policy = True
                 self.global_step += 1
@@ -210,7 +215,7 @@ class ConditionedDQNAgent:
                 else:
                     explore_policy = True
                     action = self._act(state=obs, weights=w, epsilon=0.5)
-
+                action_traj.append(action)
                 next_obs, vec_reward, terminated, truncated, info = self.env.step(action)
                 states_traj.append(next_obs)
                 reward = np.dot(vec_reward, w)
@@ -232,7 +237,6 @@ class ConditionedDQNAgent:
                         w = corners[c_i]
                         u_threshold = u_thresholds[c_i]
                         u = self.play_a_episode(env=eval_env, pref_w=w, agent=self, demo=demo[:guide_policy_scope])
-
                         print(f"u:{u}\tu_thres:{u_threshold}")
                         utility_loss = abs(u - u_threshold)
                         utility_losses.append(utility_loss)
@@ -253,8 +257,14 @@ class ConditionedDQNAgent:
                         break
 
                 if terminated or truncated:
-                    print(f"state_traj_train:{states_traj}\trewards:{vec_reward}")
+
+                    print(
+                        # f"state_traj_train:{states_traj}\t"
+                        f"action_traj:{action_traj}"
+                        f"rewards:{vec_reward}\t"
+                        f"utility:{np.dot(vec_reward,w)}")
                     states_traj = []
+                    action_traj = []
                     guide_policy_pointer = 0
                     obs, _ = self.env.reset()
 
@@ -317,7 +327,9 @@ class ConditionedDQNAgent:
         traj_actions = []
         traj_states = [state]
         action_pointer = 0
+        steps = 0
         while not terminal:
+            steps +=1
             if action_pointer < len(demo):
                 action = demo[action_pointer]
                 action_pointer += 1
@@ -330,23 +342,40 @@ class ConditionedDQNAgent:
             disc_return += gamma * np.dot(rewards, pref_w)
             gamma *= self.gamma
             state = n_state
-        print(f"action traj:{traj_actions}\nstate_traj:{traj_states}")
+            if steps > 100:
+                break
+        print(f"eval action traj:{traj_actions}"
+              # f"state_traj:{traj_states}"
+              f"\n------------------------------"
+              )
         return disc_return
 
 
 if __name__ == '__main__':
-    linear_support = LinearSupport(num_objectives=2,
-                                   epsilon=0.0)
-    deep_sea_treasure = DeepSeaTreasure()
-    eval_env = DeepSeaTreasure()
-    agent = ConditionedDQNAgent(env=deep_sea_treasure)
-    corners = np.array([[0., 1.]])
+    # linear_support = LinearSupport(num_objectives=2,
+    #                                epsilon=0.0)
+    # deep_sea_treasure = DeepSeaTreasure()
+    # eval_env = DeepSeaTreasure()
+    # agent = ConditionedDQNAgent(env=deep_sea_treasure)
+    # corners = np.array([[0., 1.]])
     # demos = [[3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
     # u_thresholds = [[19.77]]
-    # agent.jsRL_train(total_timesteps=8000,
+    # agent.jsRL_train(total_timesteps=4000,
     #                  eval_env=eval_env,
     #                  eval_freq=100,
     #                  corners=corners,
     #                  demos=demos,
     #                  u_thresholds=u_thresholds)
-    agent.train_model(steps=20000, eval_env=eval_env)
+    # agent.train_model(steps=12000, eval_env=eval_env)
+    env = Minecart()
+    eval_env = Minecart()
+    agent = ConditionedDQNAgent(env=env)
+    corners = np.array([[0.34, 0.36, 0.3]])
+    demos = [[2, 1, 3, 3, 3, 5, 5, 4, 0, 0, 1, 1, 1, 1, 1, 3, 3, 3, 2, 2, 1, 3]]
+    u_thresholds = [[-0.0424]]
+    agent.jsRL_train(total_timesteps=4000,
+                     eval_env=eval_env,
+                     eval_freq=100,
+                     corners=corners,
+                     demos=demos,
+                     u_thresholds=u_thresholds)
