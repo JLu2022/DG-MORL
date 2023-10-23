@@ -417,6 +417,7 @@ class GPIPD(MOPolicy, MOAgent):
                     "global_step": self.global_step,
                 },
             )
+
     def JS_update(self, weight: th.Tensor):
         """Update the parameters of the networks."""
         critic_losses = []
@@ -1043,19 +1044,21 @@ class GPIPD(MOPolicy, MOAgent):
             #     self._reset_priorities(tensor_w)
 
             for i in range(1, total_timesteps + 1):
-            # for i in range(1, 1000):
                 self.global_step += 1
-                if guide_policy_scope > 0 and guide_policy_pointer < guide_policy_scope:
-                    # print(f"policy_pointer:{guide_policy_pointer}\tscope:{guide_policy_scope}\tlen:{len(demo)}\t"
-                    #       f"lendemo[:guide_policy_scope]:{len(demo[:guide_policy_scope])}")
+                explore_policy = False
+                if self.global_step < self.learning_starts:
+                    explore_policy = True
+                    action = self.env.action_space.sample()
+                elif guide_policy_scope > 0 and guide_policy_pointer < guide_policy_scope:
                     action = demo[:guide_policy_scope][guide_policy_pointer]
-                    # print(f"action:{action}")
                     guide_policy_pointer += 1
                 else:
+                    explore_policy = True
                     action = self._act(th.as_tensor(obs).float().to(self.device), tensor_w)
 
                 next_obs, vec_reward, terminated, truncated, info = self.env.step(action)
-                self.replay_buffer.add(obs, action, vec_reward, next_obs, terminated)
+                if explore_policy:
+                    self.replay_buffer.add(obs, action, vec_reward, next_obs, terminated)
 
                 if self.global_step >= self.learning_starts:
                     self.JS_update(tensor_w)
@@ -1066,11 +1069,23 @@ class GPIPD(MOPolicy, MOAgent):
                     for i in range(len(corners)):
                         w = corners[i]
                         u_threshold = u_thresholds[i]
-                        _, u, _, _ = self.policy_eval(eval_env,
-                                                      weights=w,
-                                                      log=self.log)
-                        # print(f"u:{u}\tu_thres:{u_threshold}")
-                        utility_loss = abs(u-u_threshold)
+                        u = 0
+                        gamma = 1
+                        action_traj = []
+                        for action in demos[i][:guide_policy_scopes[i]]:
+                            obs, vec_reward, terminated, truncated, _ = eval_env.step(action)
+                            u += np.dot(w, vec_reward) * gamma
+                            gamma *= self.gamma
+                            action_traj.append(action)
+                        while not terminated or not truncated:
+                            tensor_w = th.tensor(w).float().to(self.device)
+                            action = self._act(th.as_tensor(obs).float().to(self.device), tensor_w)
+                            obs, vec_reward, terminated, truncated, _ = eval_env.step(action)
+                            u += np.dot(w, vec_reward) * gamma
+                            action_traj.append(action)
+                            gamma *= self.gamma
+                        print(f"u:{u}\tu_thres:{u_threshold}\naction_traj:{action_traj}")
+                        utility_loss = abs(u - u_threshold)
                         utility_losses.append(utility_loss)
                         if u >= u_threshold:
                             print(f"@:{w} -- reach threshold")
@@ -1118,9 +1133,9 @@ class GPIPD(MOPolicy, MOAgent):
                                        epsilon=0.0 if weight_selection_algo == "ols" else None)
 
         corners, demos, u_thresholds = linear_support.get_support_weight_from_demo(demos=demos, env=eval_env)
-        corners = np.array([[1.,0.]])
-        demos = [[3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
-        u_thresholds = [[19.77797698974607]]
+        # corners = np.array([[1., 0.]])
+        # demos = [[3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+        # u_thresholds = [[19.77]]
         eval_weights = equally_spaced_weights(self.reward_dim, n=num_eval_weights_for_front)
 
         for iter in range(1, max_iter + 1):

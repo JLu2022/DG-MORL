@@ -120,7 +120,7 @@ class DeepSeaTreasure(AbstractSimulator):
         image /= 255
         self.energy = 100
         position = (self.row, self.col)
-        return image, position
+        return position, None
 
     def reset_to_state(self, reset_to, put_submarine=True):
         self.row = reset_to[0]
@@ -172,7 +172,7 @@ class DeepSeaTreasure(AbstractSimulator):
         self.add_submarine()
         image = self.render_map(self.img_map)
         image /= 255
-        # position = self.row * self.num_of_col + self.col
+        # position = self.row * self.num_of_col + self.colz
         position = (self.row, self.col)
         return position, rewards, terminal, None, None
         # return rewards, image, terminal, position, d_shaping_reward, treasure_reward

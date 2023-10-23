@@ -1,55 +1,76 @@
+import copy
 import random
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from keras.layers import Input, Conv2D, Dropout, Flatten, Concatenate, Dense
+from keras.layers import Input, Conv2D, Dropout, Flatten, Concatenate, Dense, LayerNormalization
 from keras import metrics
 from keras.optimizers import Adam
 from collections import deque  # Used for replay buffer and reward tracking
-from simulators.minecart.minecart_simulator import Minecart
 import matplotlib.pyplot as plt
 from datetime import datetime  # Used for timing script
-
-# from simulators.energy_sim.energysimulator import EnergySimulator
+from Algorithm.common.morl_algorithm import MOAgent, MOPolicy
+from Algorithm.linear_support import LinearSupport
+from simulators.deep_sea_treasure.deep_sea_treasure import DeepSeaTreasure
 
 SEED = 42
+DEBUG = False
+
 BATCH_SIZE = 64
 REPLAY_MEMORY_SIZE = 1000
-GAMMA = 0.98
+
+GAMMA = 0.99
+
 TRAINING_EPISODES = 5000
 EXPLORATION_RESTARTS = 0
+
 EPSILON_START = 1
 EPSILON_END = 0.01
 EPSILON_DECAY = 1 / (TRAINING_EPISODES * 0.98)
-COPY_TO_TARGET_EVERY = 50  # Steps
-START_TRAINING_AFTER = 10  # Episodes
+COPY_TO_TARGET_EVERY = 2000  # Steps
+START_TRAINING_AFTER = 100  # Episodes
 FRAME_STACK_SIZE = 3
 NUM_WEIGHTS = 2
-SAVE_MODEL_PER = 1000
+
+
+class PreferenceSpace:
+    def __init__(self, fixed_w=None):
+        self.fixed_w = fixed_w
+
+    def sample(self):
+        # Each preference weight is randomly sampled between -20 and 20 in steps of 5
+        p0 = random.choice([x for x in range(0, 101)])  # time
+        p1 = 100 - p0
+        if self.fixed_w is None:
+            preference = np.array([p0, p1], dtype=np.float32) / 100
+        else:
+            preference = self.fixed_w
+        return preference
 
 
 class ReplayMemory(deque):
     def sample(self, batch_size):
         indices = np.random.randint(len(self), size=batch_size)
         batch = [self[index] for index in indices]
-        states, actions, rewards, next_states, dones = [
-            np.array([experience[field_index] for experience in batch]) for field_index in range(5)]
-        return states, actions, rewards, next_states, dones
+        states, actions, rewards, next_states, dones, weightss = [
+            np.array([experience[field_index] for experience in batch]) for field_index in range(6)]
+        return states, actions, rewards, next_states, dones, weightss
 
 
-class DQNAgent:
+class ConditionedDQNAgent:
     def __init__(self, env, model_path=None, checkpoint=True):
+        self.global_step = 0
         self.dynamic_reward_shaping_optimizer = Adam(learning_rate=1e-3)
         self.env = env
-        self.actions = range(6)
+        self.actions = [i for i in range(self.env.action_space)]
         self.gamma = GAMMA  # Discount
         self.eps0 = EPSILON_START  # Epsilon greedy init
         self.model_path = model_path
         self.batch_size = BATCH_SIZE
         self.replay_memory = ReplayMemory(maxlen=REPLAY_MEMORY_SIZE)
         self.checkpoint = checkpoint
-        self.input_size = 7
-        self.output_size = 6
+        self.input_size = self.env.observation_space
+        self.output_size = self.env.action_space
         # Build both models
         self.model = self.build_model()
         self.target_model = self.build_model()
@@ -58,45 +79,59 @@ class DQNAgent:
 
     def build_model(self):
         # Define Layers
-        input_layer = Input(shape=self.input_size)
-        x = input_layer
-        x = Dense(32, activation='relu')(x)
+        weight_input = Input(shape=(2,))
+        state_input = Input(shape=self.input_size)
+        x = Concatenate()([state_input, weight_input])
+        x = Dense(256, activation='relu')(x)
         x = Dropout(0.2, name="drop_0")(x)
-        x = Dense(32, activation='relu')(x)
+        x = LayerNormalization(axis=-1)(x)
+        x = Dense(256, activation='relu')(x)
         x = Dropout(0.2, name="drop_1")(x)
-        x = Dense(16, activation='relu')(x)
+        x = LayerNormalization(axis=-1)(x)
+        x = Dense(256, activation='relu')(x)
         x = Dropout(0.2, name="drop_2")(x)
+        x = LayerNormalization(axis=-1)(x)
         x = Dense(self.output_size)(x)
         outputs = x
 
         # Build full model
-        model = keras.Model(inputs=input_layer, outputs=outputs)
+        model = keras.Model(inputs=[state_input, weight_input], outputs=outputs)
         self.optimizer = keras.optimizers.Adam(learning_rate=1e-3)
         self.loss_fn = keras.losses.mean_squared_error
         model.compile(optimizer=self.optimizer, loss=self.loss_fn)
         return model
 
-    def epsilon_greedy_policy(self, state, epsilon):
+    def epsilon_greedy_policy(self, state, weights, epsilon, evaluation=True):
         if np.random.rand() < epsilon:
             return random.choice(self.actions)
         else:
-            Q_values = self.model(state[np.newaxis], training=False)
+            # print(state)
+            # print(weights)
+            Q_values = self.model([state[np.newaxis], weights[np.newaxis]], training=False)
+            # if evaluation:
+            #     print(f"state:{state}\tQ:{Q_values}")
             action = np.argmax(Q_values)
             return action
 
-    def play_one_step(self, state, epsilon, pref_w):
-        action = self.epsilon_greedy_policy(state, epsilon)
-        # self.action_list.append(action)
-        n_state, rews, terminal, _, _ = self.env.step(action)
-        reward = np.dot(rews, pref_w)
-        self.replay_memory.append([state, action, reward, n_state, terminal])
-        return n_state, reward, terminal
+    def play_one_step(self, state, epsilon, weights):
+        action = self.epsilon_greedy_policy(state, weights, epsilon)
+        self.action_list.append(action)
+        next_state, rewards, done, _, _ = self.env.step(action)
+        next_state = np.array(next_state)
+        reward = np.dot(rewards, weights)
+        self.replay_memory.append([state, action, reward, next_state, done, weights])
+        return next_state, reward, done, rewards
 
-    def training_step(self, episode):
+    def _act(self, state, weights, epsilon):
+        action = self.epsilon_greedy_policy(state, weights, epsilon, evaluation=False)
+        return action
+
+    def training_step(self):
         experiences = self.replay_memory.sample(self.batch_size)
-        states, actions, rewards, next_states, dones = experiences
+        states, actions, rewards, next_states, dones, weightss = experiences
+
         # Compute target Q values from 'next_states'
-        next_Q_values = self.target_model(next_states, training=False)
+        next_Q_values = self.target_model([next_states, weightss], training=False)
 
         max_next_Q_values = np.max(next_Q_values, axis=1)
         target_Q_values = (rewards + (1 - dones) * self.gamma * max_next_Q_values)
@@ -106,115 +141,212 @@ class DQNAgent:
         mask = tf.one_hot(actions, self.output_size)  # Number of actions
         # Compute loss and gradient for predictions on 'states'
         with tf.GradientTape() as tape:
-            all_Q_values = self.model(states)
+            # print(f"states:{states}\nweightss:{weightss}")
+            all_Q_values = self.model([states, weightss])
             Q_values = tf.reduce_sum(all_Q_values * mask, axis=1, keepdims=True)
             q_loss = tf.reduce_mean(self.loss_fn(target_Q_values, Q_values))
+        # print(f"q_loss:{q_loss}")
         grads = tape.gradient(q_loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
 
-    def train_model(self, episodes, save_per=100000, show_detail_per=100):
+    def jsRL_train(self,
+                   total_timesteps: int,
+                   eval_env=None,
+                   eval_freq: int = 10,
+                   corners=None,
+                   demos=None,
+                   u_thresholds=None):
+        """Train the agent for one iteration.
+
+                Args:
+                    total_timesteps (int): Number of timesteps to train for
+                    weight (np.ndarray): Weight vector
+                    weight_support (List[np.ndarray]): Weight support set
+                    change_w_every_episode (bool): Whether to change the weight vector at the end of each episode
+                    reset_num_timesteps (bool): Whether to reset the number of timesteps
+                    eval_env (Optional[gym.Env]): Environment to evaluate on
+                    eval_freq (int): Number of timesteps between evaluations
+                    reset_learning_starts (bool): Whether to reset the learning starts
+                """
+
+        self.police_indices = []
+
+        """
+        1. For each guide policy, grab the experience
+        2. Do and further explore
+        3. Do iterative evaluation, if any explore policy meet the criteria, roll-out the guide policy, if any explore 
+        policy decay, roll-back the guide policy, do this until all guide policy goes to empty.
+        4. Save the model as a good pre-train start point.
+        5*. further train with gpi.
+        """
+        guide_policy_scopes = []
+        for demo in demos:
+            guide_policy_scopes.append(len(demo) - 1)
+        guide_policy_scopes = np.array(guide_policy_scopes)
+        max_guide_policy_scopes = copy.deepcopy(guide_policy_scopes)
+        try_out = 0
+        while sum(guide_policy_scopes) > 0:  # change to random sample a tuple!!
+            try_out += 1
+            print("------------------------------------------------------------------")
+            idx = np.random.randint(0, len(corners))
+            print(f"try_out:{try_out}.. start\t "
+                  f"guide_scopes:{guide_policy_scopes}\t"
+                  f"idx:{idx}\n"
+                  f"demo:{demos}")
+
+            w = corners[idx]
+            demo = demos[idx]
+            guide_policy_scope = guide_policy_scopes[idx]
+            obs, _ = self.env.reset()
+            obs = np.array(obs)
+            guide_policy_pointer = 0
+            states_traj = [obs]
+            for i in range(1, total_timesteps + 1):
+                explore_policy = True
+                self.global_step += 1
+                if guide_policy_scope > 0 and guide_policy_pointer < guide_policy_scope:
+                    action = demo[:guide_policy_scope][guide_policy_pointer]
+                    guide_policy_pointer += 1
+                else:
+                    explore_policy = True
+                    action = self._act(state=obs, weights=w, epsilon=0.5)
+
+                next_obs, vec_reward, terminated, truncated, info = self.env.step(action)
+                states_traj.append(next_obs)
+                reward = np.dot(vec_reward, w)
+                next_obs = np.array(next_obs)
+                if explore_policy == True:
+                    self.replay_memory.append([obs, action, reward, next_obs, terminated, w])
+
+                if self.global_step >= START_TRAINING_AFTER:
+                    # print("Train starts -----------------------")
+                    self.training_step()
+                    if self.global_step % COPY_TO_TARGET_EVERY == 0:
+                        self.target_model.set_weights(self.model.get_weights())
+
+                if self.global_step % eval_freq == 0:
+                    rolling_ops = []
+                    utility_losses = []
+
+                    for c_i in range(len(corners)):
+                        w = corners[c_i]
+                        u_threshold = u_thresholds[c_i]
+                        u = self.play_a_episode(env=eval_env, pref_w=w, agent=self, demo=demo[:guide_policy_scope])
+
+                        print(f"u:{u}\tu_thres:{u_threshold}")
+                        utility_loss = abs(u - u_threshold)
+                        utility_losses.append(utility_loss)
+                        if u >= u_threshold:
+                            print(f"@:{w} -- reach threshold")
+                            rolling_ops.append(-2)  # roll out
+                        else:
+                            rolling_ops.append(0)
+                    rolling_ops = np.array(rolling_ops)
+                    guide_policy_scopes += rolling_ops
+                    guide_policy_scopes = np.minimum(guide_policy_scopes, max_guide_policy_scopes)
+                    guide_policy_scopes = np.maximum(guide_policy_scopes, np.zeros_like(guide_policy_scopes))
+                    print(guide_policy_scopes)
+                    guide_policy_scope = guide_policy_scopes[idx]
+                    print(f"guide_policy_scope:{guide_policy_scope}\t demo:{demos[idx]}\tw_c:{corners[idx]}")
+                    print(f"utility loss:{np.average(utility_losses)}\t timestep:{i}")
+                    if guide_policy_scope == 0:
+                        break
+
+                if terminated or truncated:
+                    print(f"state_traj_train:{states_traj}\trewards:{vec_reward}")
+                    states_traj = []
+                    guide_policy_pointer = 0
+                    obs, _ = self.env.reset()
+
+                else:
+                    obs = next_obs
+
+    def train_model(self, steps, save_per=100000, show_detail_per=1000, pref_space=PreferenceSpace(),
+                    corner_weights=None, eval_env=None):
         """
         Train the network over a range of episodes.
         """
-        steps = 0
-        pref_w = np.array([0.7, 0.1, 0.2])
-        for episode in range(1, episodes + 1):
-            # self.action_list = []
-            eps = max(self.eps0 - episode * EPSILON_DECAY, EPSILON_END)
+
+        for step in range(1, steps + 1):
+            self.action_list = []
+            eps = 0.5
             # Reset env
             state, _ = self.env.reset()
-            state = np.float32(state)  # Convert to float32 for tf
+            state = np.array(state)  # Convert to float32 for tf
 
             episode_reward = 0
+            rewards_vec = np.zeros(2)
+            # weights = pref_space.sample()
+            weights = np.array([0, 1])
             while True:
-                n_state, reward, terminal = self.play_one_step(state, eps, pref_w)
+                state, reward, done, rewards = self.play_one_step(np.array(state), eps, weights)
                 steps += 1
                 episode_reward += reward
-                if terminal:
+                rewards_vec += rewards
+                if done:
                     break
-            if episode > START_TRAINING_AFTER:  # Wait for buffer to fill up a bit
-                self.training_step(episode)
-                if episode % COPY_TO_TARGET_EVERY == 0:
+            if step > START_TRAINING_AFTER:  # Wait for buffer to fill up a bit
+                self.training_step()
+                if step % COPY_TO_TARGET_EVERY == 0:
                     self.target_model.set_weights(self.model.get_weights())
-                if episode % save_per == 0 and episode >= save_per and self.checkpoint:
-                    self.model.save(self.model_path + str(episode))
-            if episode % show_detail_per == 0:
-                print(f"Episode:{episode}\t"
-                      f"Episodic utility:{episode_reward}\t"
-                      f"Epsilon:{np.round(eps, 2)}\t")
+                if step % save_per == 0 and step >= save_per and self.checkpoint:
+                    self.model.save(self.model_path + str(step))
+                # u = self.play_a_episode(env=eval_env, pref_w=np.array([0,1]), agent=self,demo=[])
+                # print(f"tryout_u:{u}")
+            if step % show_detail_per == 0:
+                if sum(self.action_list) > 0:
+                    indices_of_one = [i for i, x in enumerate(self.action_list) if x == 1]
+                else:
+                    indices_of_one = "Not run at all"
+                print(f"Epoch:{step}\t"
+                      f"Pref:{weights}"
+                      f"Epoch Reward/Cost:{episode_reward}\t"
+                      f"Reward Vec:{rewards_vec}\t"
+                      f"Epsilon:{np.round(eps, 2)}\t"
+                      f"Actions:{sum(self.action_list)}\t"
+                      f"@{indices_of_one}")
+        u = self.play_a_episode(env=eval_env, pref_w=np.array([0., 1.]), agent=self, demo=[])
+        print(f"utility:{u}")
 
-    def jsmoDQN(self, pref_w=None, demo=None):
-        epsilon = 0.7
-        expected_utility_list = []
-        train_cnt = 0
-        episode = 0
-
-        overall_utility_thres, _ = self.env.calculate_utility(demo=demo, pref_w=pref_w)
-        print(f"overall_utility_thres:{overall_utility_thres}")
-
-        utility = -np.inf
-        h_pointer = len(demo) - 1
-        while h_pointer >= 0:
-            action_list = demo[:h_pointer]
-            while utility < overall_utility_thres:
-                terminal = False
-                state, _ = self.env.reset()
-
-                for action in action_list:  # guide policy takes over
-                    n_state, rews, terminal, _, _ = self.env.step(action)
-                    reward = np.dot(rews, pref_w)
-                    self.replay_memory.append([state, action, reward, n_state, terminal])
-                    state = n_state
-
-                while not terminal:  # explore policy takes over
-                    action = self.epsilon_greedy_policy(state, epsilon)
-                    n_state, rews, terminal, _, _ = self.env.step(action)
-                    reward = np.dot(rews, pref_w)
-                    self.replay_memory.append([state, action, reward, n_state, terminal])
-                    state = n_state
-                episode += 1
-                if episode > START_TRAINING_AFTER:  # Wait for buffer to fill up a bit
-                    self.training_step(episode)
-                    train_cnt += 1
-                    if episode % COPY_TO_TARGET_EVERY == 0:
-                        self.target_model.set_weights(self.model.get_weights())
-                    if episode % SAVE_MODEL_PER == 0 and episode >= SAVE_MODEL_PER and self.checkpoint:
-                        self.model.save(self.model_path + str(episode))
-
-                utility, traj = self.evaluate(pref_w=pref_w)
-                expected_utility_list.append(utility)
-                if train_cnt % 1000 == 0:
-                    print(f"train cnt:{train_cnt}\tutility:{utility}")
-            h_pointer -= 1
-
-        utility, traj = self.evaluate(pref_w=pref_w)
-        print(f"good traj:{traj}\tu:{utility}")
-        print("==========================================")
-        return expected_utility_list
-
-    def evaluate(self, pref_w):
-        terminal = False
-        state, _ = self.env.reset()
-        vec_rewards = np.zeros(3)
-        action_list = []
+    def play_a_episode(self, env, pref_w, agent, demo):
+        disc_return = 0
         gamma = 1
+        terminal = False
+        state, _ = env.reset()
+        state = np.array(state)
+        traj_actions = []
+        traj_states = [state]
+        action_pointer = 0
         while not terminal:
-            action = self.epsilon_greedy_policy(state, epsilon=0)
-            n_state, rews, terminal, _, _ = self.env.step(action)
-            vec_rewards += gamma * rews
+            if action_pointer < len(demo):
+                action = demo[action_pointer]
+                action_pointer += 1
+            else:
+                action = agent.epsilon_greedy_policy(state, weights=pref_w, epsilon=0, evaluation=False)
+            traj_actions.append(action)
+            n_state, rewards, terminal, _, _ = env.step(action)
+            n_state = np.array(n_state)
+            traj_states.append(n_state)
+            disc_return += gamma * np.dot(rewards, pref_w)
             gamma *= self.gamma
             state = n_state
-            action_list.append(action)
-        utility = np.dot(vec_rewards, pref_w)
-        return utility, action_list
+        print(f"action traj:{traj_actions}\nstate_traj:{traj_states}")
+        return disc_return
 
 
 if __name__ == '__main__':
-    explore_episodes = 1000
-    simulator = Minecart()
-    agent = DQNAgent(env=simulator, model_path="../train/minecart/model/")
-    agent.train_model(episodes=10000)
-    print("Training process finish, start Evaluation...")
-    utility, action_list = agent.evaluate(pref_w=np.array([0.7, 0.1, 0.2]))
-    print(f"utility:{utility}\nactions:{action_list}")
-    np.save("../train/minecart/traj/pure_DQN_tryout/actions.npy", action_list)
+    linear_support = LinearSupport(num_objectives=2,
+                                   epsilon=0.0)
+    deep_sea_treasure = DeepSeaTreasure()
+    eval_env = DeepSeaTreasure()
+    agent = ConditionedDQNAgent(env=deep_sea_treasure)
+    corners = np.array([[0., 1.]])
+    # demos = [[3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+    # u_thresholds = [[19.77]]
+    # agent.jsRL_train(total_timesteps=8000,
+    #                  eval_env=eval_env,
+    #                  eval_freq=100,
+    #                  corners=corners,
+    #                  demos=demos,
+    #                  u_thresholds=u_thresholds)
+    agent.train_model(steps=20000, eval_env=eval_env)

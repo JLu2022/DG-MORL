@@ -181,6 +181,7 @@ class LinearSupport:
                 if u > max_u:
                     max_u = u
                     max_demo = demos[i]
+            max_u = int(max_u*100)/100.0
             return max_demo, max_u
 
         demo_list = []
