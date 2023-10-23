@@ -17,7 +17,7 @@ from simulators.minecart.minecart_simulator import Minecart
 SEED = 42
 DEBUG = False
 
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 REPLAY_MEMORY_SIZE = 6000
 
 GAMMA = 0.98
@@ -252,7 +252,8 @@ class ConditionedDQNAgent:
                     print(guide_policy_scopes)
                     guide_policy_scope = guide_policy_scopes[idx]
                     print(f"guide_policy_scope:{guide_policy_scope}\t demo:{demos[idx]}\tw_c:{corners[idx]}")
-                    print(f"utility loss:{np.average(utility_losses)}\t timestep:{i}")
+                    print(f"utility loss:{np.average(utility_losses)}\t timestep:{i}"
+                          f"\n------------------------------")
                     if guide_policy_scope == 0:
                         break
 
@@ -262,7 +263,8 @@ class ConditionedDQNAgent:
                         # f"state_traj_train:{states_traj}\t"
                         f"action_traj:{action_traj}"
                         f"rewards:{vec_reward}\t"
-                        f"utility:{np.dot(vec_reward,w)}")
+                        # f"utility:{np.dot(vec_reward, w)}"
+                    )
                     states_traj = []
                     action_traj = []
                     guide_policy_pointer = 0
@@ -329,7 +331,7 @@ class ConditionedDQNAgent:
         action_pointer = 0
         steps = 0
         while not terminal:
-            steps +=1
+            steps += 1
             if action_pointer < len(demo):
                 action = demo[action_pointer]
                 action_pointer += 1
@@ -346,7 +348,7 @@ class ConditionedDQNAgent:
                 break
         print(f"eval action traj:{traj_actions}"
               # f"state_traj:{traj_states}"
-              f"\n------------------------------"
+
               )
         return disc_return
 
