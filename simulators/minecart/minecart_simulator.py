@@ -14,6 +14,9 @@ from gymnasium.spaces import Box, Discrete
 from gymnasium.utils import EzPickle
 from scipy.spatial import ConvexHull
 import keyboard
+
+from simulators.minecart.preference_space import PreferenceSpace
+
 # from preference_space import PreferenceSpace
 
 EPS_SPEED = 0.001  # Minimum speed to be considered in motion
@@ -890,11 +893,12 @@ if __name__ == "__main__":
     utility_dict = {}
     pref_space = PreferenceSpace()
     pref_list = pref_space.iterate()
-    for pref_w in pref_list:
-        # utility_dict[tuple(pref_w)] = {"utility":-np.inf, "mode":"None Mode", ""}
-        utility_dict[tuple(pref_w)] = [-np.inf]
-        utility_dict[tuple(pref_w)].append("None Mode")
-        utility_dict[tuple(pref_w)].append(())
+    # for pref_w in pref_list:
+    #     # utility_dict[tuple(pref_w)] = {"utility":-np.inf, "mode":"None Mode", ""}
+    #     utility_dict[tuple(pref_w)] = [-np.inf]
+    #     utility_dict[tuple(pref_w)].append("None Mode")
+    #     utility_dict[tuple(pref_w)].append(())
+    demos = []
     behaviour_modes = ["mean_agent", "ore_1_agent", "ore_2_agent","quick_ore_1_agent","quick_ore_2_agent","balance_agent","quick_balance_agent"]
     # behaviour_modes = ["quick_balance_agent"]
     utility = 0
@@ -937,20 +941,20 @@ if __name__ == "__main__":
                 action_list.append(action)
             elif event.event_type == keyboard.KEY_UP:
                 key_states.pop(event.name, None)
-
-        for pref_w in pref_list:
-            # if np.dot(pref_w, rewards) > utility_dict[tuple(pref_w)][0]:
-            if True:
-                utility_dict[tuple(pref_w)][0] = np.dot(pref_w, rewards)
-                utility_dict[tuple(pref_w)][1] = behaviour_mode
-                utility_dict[tuple(pref_w)][2] = tuple(action_list)
+        demos.append(action_list)
+        # for pref_w in pref_list:
+        #     # if np.dot(pref_w, rewards) > utility_dict[tuple(pref_w)][0]:
+        #     if True:
+        #         utility_dict[tuple(pref_w)][0] = np.dot(pref_w, rewards)
+        #         utility_dict[tuple(pref_w)][1] = behaviour_mode
+        #         utility_dict[tuple(pref_w)][2] = tuple(action_list)
         print(f"action list:{action_list}")
             # print(f"w:{pref_w}\tutility:{np.dot(pref_w, rewards)}")
         # env.reset()
-    for k, v in utility_dict.items():
-        print(f"pref_w:{k}\tutility:{v[0]}\tbehaviour_mode:{v[1]}\taction_traj:{v[2]}")
+    # for k, v in utility_dict.items():
+    #     print(f"pref_w:{k}\tutility:{v[0]}\tbehaviour_mode:{v[1]}\taction_traj:{v[2]}")
     # print(f"rewards:{rewards}")
     # print(f"action_traj:{action_list}")
-    np.save(f"../../train/minecart/traj/human_traj_utility_dict.npy", utility_dict)
+    np.save(f"../../train/minecart/traj/demos.npy", demos)
     # np.save(f"../../train/minecart/traj/{behaviour_mode}_rewards.npy", rewards)
     # np.save(f"../../train/minecart/traj/{behaviour_mode}.npy", action_list)
