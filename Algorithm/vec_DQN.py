@@ -42,7 +42,8 @@ class ReplayMemory(deque):
 
 class ConditionedDQNAgent:
     def __init__(self, env, batch_size=64, copy_to_target_per=200, start_training_after=50, gamma=0.99, model_path=None,
-                 replay_mem_size=6000, checkpoint=True, reward_dim=2, actions=4, state_dim=2, learning_rate=1e-3):
+                 replay_mem_size=6000, checkpoint=True, reward_dim=2, actions=4, state_dim=2, learning_rate=1e-3,
+                 epsilon=0.5):
         self.gamma = gamma
         self.global_step = 0
         self.env = env
@@ -56,12 +57,14 @@ class ConditionedDQNAgent:
         self.input_size = state_dim
         self.weight_size = reward_dim
         self.output_size = actions
+        self.epsilon = epsilon
 
         self.learning_rate = learning_rate
         self.model = self.build_model()
         self.target_model = self.build_model()
         self.target_model.set_weights(self.model.get_weights())
         self.model_path = model_path
+        self.EU_list = []
 
     def build_model(self):
         # Define Layers
@@ -101,7 +104,7 @@ class ConditionedDQNAgent:
         action = self.epsilon_greedy_policy(state, weights, epsilon, evaluation=False)
         return action
 
-    def update(self, tensor_w):
+    def update(self):
         experiences = self.replay_memory.sample(self.batch_size)
         states, actions, rewards, next_states, dones, weightss = experiences
 
@@ -120,21 +123,30 @@ class ConditionedDQNAgent:
             q_loss = tf.reduce_mean(self.loss_fn(target_Q_values, Q_values))
         grads = tape.gradient(q_loss, self.model.trainable_variables)
         self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
+        return q_loss
 
     def get_corners(self, demos, eval_env):
         linear_support = LinearSupport(num_objectives=self.weight_size,
                                        epsilon=0.0)
+        new_ccs = []
         for demo in demos:
             utility, vec_return, _, _ = self.evaluate_demo(demo=demo, eval_env=eval_env,
                                                            weights=np.zeros(self.weight_size))
-            linear_support.ccs.append(vec_return)
+            new_ccs.append(vec_return)
+
+        if not len(linear_support.ccs) == len(new_ccs):  # when empty
+            linear_support.ccs = new_ccs
+        else:
+            updated_list = [new_ccs[i] if linear_support.ccs[i] != new_ccs[i] else linear_support.ccs[i] for i in
+                            range(len(linear_support.ccs))]
+            linear_support.ccs = updated_list
         corners = linear_support.compute_corner_weights()
         return corners
 
     def get_demos_EU(self, corners, demos, eval_env):
         utility_thresholds = []
         for w_c in corners:
-            demo, utility_threshold, _ = self.weight_to_demo(w=w_c, demos=demos, eval_env=eval_env)
+            demo, utility_threshold, _, _ = self.weight_to_demo(w=w_c, demos=demos, eval_env=eval_env)
             utility_thresholds.append(utility_threshold)
         utility_thresholds = np.array(utility_thresholds)
         EU_target = np.mean(utility_thresholds)
@@ -143,36 +155,56 @@ class ConditionedDQNAgent:
     def get_agent_EU(self, corners, eval_env):
         utilities = []
         for w in corners:
-            utility, disc_vec_return, _, _ = self.play_a_episode(env=eval_env, agent=self, demo=[], weights=w)
+            utility, disc_vec_return, _, _, _ = self.play_a_episode(env=eval_env, agent=self, demo=[], weights=w)
             utilities.append(utility)
         EU = np.mean(utilities)
         return EU
 
-    def evaluate_agent(self, eval_env):
+    def evaluate_agent(self, eval_env, eval_weights, show_case=True):
         u = 0
-        eval_weights = equally_spaced_weights(self.weight_size, n=100)
+
         for weight in eval_weights:
-            disc_return, disc_vec_return, scalar_return, vec_return = self.play_a_episode(env=eval_env, weights=weight,
-                                                                                          agent=self, demo=[])
+            disc_return, disc_vec_return, scalar_return, vec_return, _ = self.play_a_episode(env=eval_env,
+                                                                                             weights=weight,
+                                                                                             agent=self, demo=[])
             u += disc_return
-            print(f"for w:{np.round_(weight, 3)}\tdisc vec return:{vec_return}")
-        print(f"100 EU:{u / 100}")
+            if show_case:
+                print(f"for w:{np.round_(weight, 3)}\tdisc vec return:{vec_return}")
+        if show_case:
+            print(f"100 EU:{u / 100}")
+        return u
 
     def jsmorl_train(self, demos, eval_env, total_timesteps, timesteps_per_iter):
+        self.demo_visits = np.zeros(len(demos) + 1)
         corners = self.get_corners(demos=demos, eval_env=eval_env)
-        EU_target = self.get_demos_EU(corners=corners, demos=demos, eval_env=eval_env)
+        print(f"corner weights:{np.round_(corners, 3)}")
+        eval_weights = equally_spaced_weights(self.weight_size, n=100)
+        EU_target = self.get_demos_EU(corners=eval_weights, demos=demos, eval_env=eval_env)
         EU = -np.inf
         iterations = 0
+        step_list = []
         while EU < EU_target and self.global_step < total_timesteps:
             iterations += 1
-            self.jsmorl_train_iteration(eval_env=eval_env, eval_freq=100, corners=corners, demos=demos,
-                                        total_timesteps=timesteps_per_iter, roll_back_step=2)
-            EU = self.get_agent_EU(corners=corners, eval_env=eval_env)
+            demos = self.jsmorl_train_iteration(eval_env=eval_env, eval_freq=100, corners=corners,
+                                                demos=demos,
+                                                total_timesteps=timesteps_per_iter, roll_back_step=2)
 
+            corners = self.get_corners(demos=demos, eval_env=eval_env)
+            EU = self.get_agent_EU(corners=eval_weights, eval_env=eval_env)
+            EU_target = self.get_demos_EU(corners=eval_weights, demos=demos, eval_env=eval_env)
+
+            self.EU_list.append(EU)
+            step_list.append(self.global_step)
             print(f"@iteration{iterations}-- EU:{EU}\tEU_target:{EU_target}")
         print(f"reach!!!!@step:{self.global_step}")
         self.model.save(filepath="abc_model")
-        self.evaluate_agent(eval_env=eval_env)
+
+        corners = self.get_corners(demos=demos, eval_env=eval_env)
+        print(f"corner weights:{np.round_(corners, 3)}")
+        eval_weights = equally_spaced_weights(self.weight_size, n=100)
+        self.evaluate_agent(eval_env=eval_env, eval_weights=eval_weights)
+        plt.plot(step_list, self.EU_list)
+        plt.show()
 
     def jsmorl_train_iteration(self,
                                eval_env=None,
@@ -188,25 +220,44 @@ class ConditionedDQNAgent:
                     eval_freq (int): Number of timesteps between evaluations
         """
 
-        idx = np.random.randint(0, len(corners))
+        # idx = np.random.randint(0, len(corners))
+        # w = corners[idx]
+        priorities = []
+        demos_ = []
+        u_thresholds = []
+        for w in corners:
+            demo, utility_threshold, max_vec_return, demo_idx = self.weight_to_demo(w, demos, eval_env=eval_env)
+            u = self.evaluate_agent(eval_env=eval_env, eval_weights=np.array([w]), show_case=False)
+            priority = abs((utility_threshold - u) / utility_threshold)
+            priorities.append(priority)
+            demos_.append(demo)
+            u_thresholds.append(utility_threshold)
+
+        idx = random.choices(range(len(priorities)), weights=priorities, k=1)[0]
         w = corners[idx]
-        demo, utility_threshold, _ = self.weight_to_demo(w, demos, eval_env=eval_env)
+        demo = demos_[idx]
+
+        utility_threshold = u_thresholds[idx]
+        print(f"weight:{w} is sampled by priority:{priorities[idx]}")
         pi_g_pointer = 0
         pi_g_horizon = len(demo) - 1
-        # pi_g_horizon = np.random.randint(len(demo)//2, len(demo) - 1)
 
         obs, _ = self.env.reset()
         obs = np.array(obs)
         step = 0
+        epsilon_factor = 1
+        self.epsilon = 0.9
         while step < total_timesteps and pi_g_horizon >= 0:
+        # while pi_g_horizon >= 0:
             step += 1
             self.global_step += 1
+
             if pi_g_horizon > 0 and pi_g_pointer < pi_g_horizon:
                 action = demo[:pi_g_horizon][pi_g_pointer]
                 pi_g_pointer += 1
             else:
-                action = self._act(state=obs, weights=w, epsilon=0.5)
-
+                action = self._act(state=obs, weights=w, epsilon=self.epsilon)
+            self.epsilon -= self.epsilon/1000
             next_obs, vec_reward, terminated, truncated, info = self.env.step(action)
             reward = np.dot(vec_reward, w)
             next_obs = np.array(next_obs)
@@ -214,29 +265,43 @@ class ConditionedDQNAgent:
             self.replay_memory.append([obs, action, reward, next_obs, terminated, w])
 
             if self.global_step >= self.start_training_after:
-                self.update(tf.convert_to_tensor(w))
+                self.update()
                 if self.global_step % self.copy_to_target_per == 0:
-                    self.target_model.set_weights(self.model.get_weights())
+                    if True:
+                        self.target_model.set_weights(self.model.get_weights())
 
             if self.global_step % eval_freq == 0:
-                u, disc_vec_return, _, _ = self.play_a_episode(env=eval_env, weights=w, agent=self,
-                                                               demo=demo[:pi_g_horizon])
+                u, disc_vec_return, _, _, new_demo = self.play_a_episode(env=eval_env, weights=w, agent=self,
+                                                                         demo=demo[:pi_g_horizon], evaluation=False)
                 if u >= utility_threshold:
+                    self.epsilon = 0.9
                     print(
-                        f"@:{w} -- reach threshold - u:{np.round_(u, 4)}>u_threshold:{np.round_(utility_threshold, 4)}")
+                        f"@:{w} -- reach threshold - u:{np.round_(u, 4)}>u_threshold:{np.round_(utility_threshold, 4)}"
+                        f"\nreplace old demo {demo} with better demo:{new_demo}"
+                        f"\tepsilon factor:{epsilon_factor}")
+                    demo = new_demo
+                    demos_[idx] = new_demo
                     if pi_g_horizon >= 1:
                         pi_g_horizon = max(pi_g_horizon - roll_back_step, 0)
                     else:
                         pi_g_horizon -= roll_back_step
 
                 print(
-                    f"guide policy horizon:{pi_g_horizon}\t demo:{demo}\tw_c:{w}\tu:{np.round_(u, 4)}\tu_threshold:{np.round_(utility_threshold, 4)}")
+                    f"guide policy horizon:{pi_g_horizon}\t"
+                    f"demo:{demo}\t"
+                    f"w_c:{w}\t"
+                    f"u:{np.round_(u, 4)}\t"
+                    f"u_threshold:{np.round_(utility_threshold, 4)}")
 
             if terminated or truncated:
                 obs, _ = self.env.reset()
                 obs = np.array(obs)
             else:
                 obs = next_obs
+        # self.demo_visits[idx] += 1
+        for d in demos_:
+            print(f"demo:{d}")
+        return demos_
 
     def weight_to_demo(self, w, demos, eval_env):
         disc_scalar_returns = []
@@ -251,7 +316,7 @@ class ConditionedDQNAgent:
         max_demo = demos[max_demo_idx]
         max_utility = disc_scalar_returns[max_demo_idx]
         max_vec_return = vec_returns[max_demo_idx]
-        return max_demo, max_utility, max_vec_return
+        return max_demo, max_utility, max_vec_return, max_demo_idx
 
     def evaluate_demo(self, demo, eval_env, weights=np.zeros([1, 0])):
         disc_vec_return = np.zeros(self.weight_size, dtype=np.float64)
@@ -259,15 +324,16 @@ class ConditionedDQNAgent:
         disc_scalar_return = 0
         scalar_return = 0
         gamma = 1
-        eval_env.reset()
+        obs, _ = eval_env.reset()
         for action in demo:
-            _, rewards, _, _, _ = eval_env.step(action)
+            next_obs, rewards, terminated, _, _ = eval_env.step(action)
             disc_scalar_return += gamma * np.dot(rewards, weights)
             disc_vec_return += gamma * rewards
 
             scalar_return += np.dot(rewards, weights)
             vec_return += rewards
             gamma *= self.gamma
+            obs = next_obs
         return disc_scalar_return, disc_vec_return, scalar_return, vec_return
 
     def play_a_episode(self, env, weights, agent, demo, evaluation=False):
@@ -279,7 +345,7 @@ class ConditionedDQNAgent:
         terminal = False
         state, _ = env.reset()
         state = np.array(state)
-        traj_actions = []
+        action_traj = []
         traj_states = [state]
         action_pointer = 0
         steps = 0
@@ -291,7 +357,7 @@ class ConditionedDQNAgent:
                 action_pointer += 1
             else:
                 action = agent.epsilon_greedy_policy(state, weights=weights, epsilon=0, evaluation=evaluation)
-            traj_actions.append(action)
+            action_traj.append(action)
             n_state, rewards, terminal, _, _ = env.step(action)
             n_state = np.array(n_state)
             traj_states.append(n_state)
@@ -304,9 +370,9 @@ class ConditionedDQNAgent:
             if steps > 50:
                 break
         if evaluation:
-            print(f"eval action traj:{traj_actions}")
+            print(f"eval action traj:{action_traj}")
 
-        return disc_return, disc_vec_return, scalar_return, vec_return
+        return disc_return, disc_vec_return, scalar_return, vec_return, action_traj
 
 
 if __name__ == '__main__':
@@ -315,7 +381,8 @@ if __name__ == '__main__':
     """ This part is for Experiment of DST"""
     deep_sea_treasure = DeepSeaTreasure()
     eval_env = DeepSeaTreasure()
-    agent = ConditionedDQNAgent(env=deep_sea_treasure)
+    agent = ConditionedDQNAgent(env=deep_sea_treasure, learning_rate=1e-3, replay_mem_size=20000,
+                                copy_to_target_per=200, batch_size=128, epsilon=0.5)
 
     action_demo_1 = [2, 1]  # 0.7
     action_demo_2 = [2, 3, 1, 1]  # 8.2
@@ -329,8 +396,10 @@ if __name__ == '__main__':
     action_demo_10 = [2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 23.7
     action_demos = [action_demo_1, action_demo_2, action_demo_3, action_demo_4, action_demo_5, action_demo_6,
                     action_demo_7, action_demo_8, action_demo_9, action_demo_10]
-    agent.jsmorl_train(demos=action_demos, eval_env=eval_env, total_timesteps=40000, timesteps_per_iter=4000)
+    agent.jsmorl_train(demos=action_demos, eval_env=eval_env, total_timesteps=40000, timesteps_per_iter=10000)
 
+    # max_demo, max_utility, max_vec_return, max_demo_idx = agent.weight_to_demo(np.array([0, 1e0]), action_demos, eval_env)
+    # print(f"max demo:{max_demo}")
     """ This part is for Experiment of Minecart"""
     # mine_cart_env = Minecart()
     # eval_env = Minecart()

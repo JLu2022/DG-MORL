@@ -142,11 +142,7 @@ class DeepSeaTreasure(AbstractSimulator):
         self.img_map = [list(self.background_map[i]) for i in range(self.num_of_row)]
         rewards = np.zeros(2)
         rewards[1] = -1
-        treasure_reward = 0
-        d_shaping_reward = 0
         terminal = False
-        if d_goal:
-            manhattan_goal = abs(self.row - d_goal[0][0]) + abs(self.col - d_goal[0][1])
         self.energy -= 1
 
         if action == 0 and self.row > 0 and not self.background_map[self.row - 1][self.col] == 0:
@@ -158,13 +154,8 @@ class DeepSeaTreasure(AbstractSimulator):
         elif action == 3 and self.col < self.num_of_col - 1 and not self.background_map[self.row][self.col + 1] == 0:
             self.col = self.col + 1
 
-        if d_goal:
-            manhattan_goal_prime = abs(self.row - d_goal[1][0]) + abs(self.col - d_goal[1][1])
-            d_shaping_reward = manhattan_goal - manhattan_goal_prime
-
         if not self.background_map[self.row][self.col] == 0 and not self.background_map[self.row][self.col] == -1:
             rewards[0] = self.background_map[self.row][self.col]
-            treasure_reward = rewards[0]
             terminal = True
         if self.energy <= 0:
             terminal = True
@@ -172,11 +163,8 @@ class DeepSeaTreasure(AbstractSimulator):
         self.add_submarine()
         image = self.render_map(self.img_map)
         image /= 255
-        # position = self.row * self.num_of_col + self.colz
         position = (self.row, self.col)
         return position, rewards, terminal, None, None
-        # return rewards, image, terminal, position, d_shaping_reward, treasure_reward
-        # return rewards, (image, (self.row, self.col)), terminal,shaping_reward
 
     def visualize(self):
         my_ticks_x = np.arange(0, self.num_of_col, 1)
@@ -218,9 +206,9 @@ class DeepSeaTreasure(AbstractSimulator):
         col = player_pos[1]
         rewards = np.zeros(2)
         if not self.background_map[row][col] == 0 and not self.background_map[row][col] == -1:
-            rewards += np.array([self.background_map[row][col]],-1)
+            rewards += np.array([self.background_map[row][col]], -1)
         else:
-            rewards += np.array([0,-1])
+            rewards += np.array([0, -1])
         return rewards
 
     def get_settings(self, action=None):
@@ -254,12 +242,11 @@ class DeepSeaTreasure(AbstractSimulator):
             row = pos[0]
             col = pos[1]
             if not self.background_map[row][col] == 0 and not self.background_map[row][col] == -1:
-                rewards += gamma * np.array([self.background_map[row][col]],-1)
-                pure_rewards += np.array([self.background_map[row][col]],-1)
-                # print(f"reach:{self.background_map[row][col]}")
+                rewards += gamma * np.array([self.background_map[row][col]], -1)
+                pure_rewards += np.array([self.background_map[row][col]], -1)
             else:
-                rewards += gamma * np.array([ 0,-1])
-                pure_rewards += np.array([0,-1])
+                rewards += gamma * np.array([0, -1])
+                pure_rewards += np.array([0, -1])
             gamma *= GAMMA
         utility = np.dot(rewards, pref_w)
         return utility, pure_rewards
@@ -337,7 +324,8 @@ if __name__ == '__main__':
         utility_list = []
         for demo in action_demos:
             value_scalar, value_vec = dst_env.calculate_utility_from_actions(action_demo=demo,
-                                                                             pref_w=np.array([1 - treasure_w, treasure_w]))
+                                                                             pref_w=np.array(
+                                                                                 [1 - treasure_w, treasure_w]))
             # value_vecs.append(value_vec)
             utility_list.append(value_scalar)
         print(f"w_vec:{[1 - treasure_w, treasure_w]}\tV*S(w):{max(utility_list)}\tdemo:{np.argmax(utility_list)}")

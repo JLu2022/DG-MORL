@@ -115,7 +115,7 @@ class ConditionedDQNAgent:
 
             action = np.argmax(Q_values)
             if evaluation:
-                print(f"state:{np.round_(state,3)}\tQ:{np.round_(Q_values,3)}\taction:{action}")
+                print(f"state:{np.round_(state, 3)}\tQ:{np.round_(Q_values, 3)}\taction:{action}")
             return action
 
     def play_one_step(self, state, epsilon, weights):
@@ -304,7 +304,7 @@ class ConditionedDQNAgent:
                     self.target_model.set_weights(self.model.get_weights())
                 if step % save_per == 0 and step >= save_per and self.checkpoint:
                     self.model.save(self.model_path + str(step))
-                u = self.play_a_episode(env=eval_env, pref_w=np.array([0,1]), agent=self,demo=[])
+                u = self.play_a_episode(env=eval_env, pref_w=np.array([0, 1]), agent=self, demo=[])
                 print(f"tr"
                       f"yout_u:{u}")
             if step % show_detail_per == 0:
@@ -383,4 +383,4 @@ if __name__ == '__main__':
     #                  corners=corners,
     #                  demos=demos,
     #                  u_thresholds=u_thresholds)
-    agent.train_model(steps = 12000, eval_env=eval_env)
+    agent.train_model(steps=12000, eval_env=eval_env)
